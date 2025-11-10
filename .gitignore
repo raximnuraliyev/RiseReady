@@ -12,7 +12,12 @@ dist
 dist-ssr
 *.local
 
-git check-ignore -v .env
+# Environment files (ignore local secrets)
+.env*
+!.env.example
+server/.env
+server/.env*
+!server/.env.example
 
 # Editor directories and files
 .vscode/*
