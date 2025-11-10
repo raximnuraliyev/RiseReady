@@ -1,0 +1,1309 @@
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { 
+  Briefcase,
+  TrendingUp,
+  Target,
+  Users,
+  BookOpen,
+  ExternalLink,
+  CheckCircle2,
+  Circle,
+  MapPin,
+  Calendar,
+  Building2,
+  Plus,
+  X,
+  ChevronRight,
+  Lightbulb,
+  Award,
+  MessageCircle,
+  FileText,
+  Edit2,
+  DollarSign,
+  Link2
+} from 'lucide-react'
+import { format } from 'date-fns'
+
+export type Application = {
+  id: string
+  position: string
+  company: string
+  location: string
+  status: 'Applied' | 'Interviewed' | 'Offered' | 'Rejected' | 'Awaiting Interview'
+  appliedDate: Date
+  url?: string
+}
+
+export type CareerPath = {
+  id: string
+  title: string
+  icon: string
+  description: string
+  avgSalary: string
+  growth: string
+  skills: string[]
+  color: string
+  recommended?: boolean
+}
+
+export type Task = {
+  id: string
+  title: string
+  completed: boolean
+}
+
+export type Internship = {
+  id: string
+  title: string
+  company: string
+  location: string
+  duration: string
+  stipend: string
+  posted: string
+  url?: string
+}
+
+export type LinkedInOpportunity = {
+  id: string
+  title: string
+  organization?: string
+  company?: string
+  url?: string
+  deadline?: string
+  postedAt?: string
+  source?: string
+}
+
+export type Mentor = {
+  id: string
+  name: string
+  role: string
+  company: string
+  expertise: string[]
+  discordUsername: string
+}
+
+export default function CareerPage() {
+  const [applications, setApplications] = useState<Application[]>([
+    { id: '1', position: 'UX Design Intern', company: 'Google', location: 'Mountain View, CA', status: 'Applied', appliedDate: new Date(2024, 10, 20), url: 'https://careers.google.com' },
+    { id: '2', position: 'Product Design Intern', company: 'Meta', location: 'Menlo Park, CA', status: 'Interviewed', appliedDate: new Date(2024, 10, 18) },
+    { id: '3', position: 'UI Designer', company: 'Apple', location: 'Cupertino, CA', status: 'Awaiting Interview', appliedDate: new Date(2024, 10, 15) },
+    { id: '4', position: 'UX Researcher', company: 'Microsoft', location: 'Redmond, WA', status: 'Rejected', appliedDate: new Date(2024, 10, 10) },
+  ])
+
+  const [selectedPath, setSelectedPath] = useState<CareerPath | null>(null)
+  const [showPathDetails, setShowPathDetails] = useState(false)
+  const [showAddApplication, setShowAddApplication] = useState(false)
+  const [showChooseCareer, setShowChooseCareer] = useState(false)
+  const [showMentors, setShowMentors] = useState(false)
+  const [showResources, setShowResources] = useState(false)
+  const [showInternships, setShowInternships] = useState(false)
+
+  // Custom path modal state
+  const [showCreateCustomPath, setShowCreateCustomPath] = useState(false)
+  const [customTitle, setCustomTitle] = useState('')
+  const [customDesc, setCustomDesc] = useState('')
+  const [customTasks, setCustomTasks] = useState<string[]>([''])
+
+  // LinkedIn opportunities state
+  const [opps, setOpps] = useState<LinkedInOpportunity[]>([])
+  const [loadingOpps, setLoadingOpps] = useState(false)
+  const [oppError, setOppError] = useState<string | null>(null)
+
+  const fetchOpps = async () => {
+    try {
+      setLoadingOpps(true)
+      setOppError(null)
+      let res = await fetch('/api/opportunities')
+      if (!res.ok) {
+        res = await fetch('/api/opportunities.json')
+      }
+      const data = await res.json()
+      setOpps(Array.isArray(data) ? data : [])
+    } catch (e) {
+      setOpps([])
+      setOppError('Failed to load opportunities')
+    } finally {
+      setLoadingOpps(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchOpps()
+  }, [])
+
+  const [newApp, setNewApp] = useState({
+    position: '',
+    company: '',
+    location: '',
+    status: 'Applied' as Application['status'],
+    url: ''
+  })
+
+  const [mentors] = useState<Mentor[]>([
+    { id: '1', name: 'Sarah Johnson', role: 'Senior UX Designer', company: 'Google', expertise: ['UX Design', 'User Research', 'Prototyping'], discordUsername: 'sarahj_ux#1234' },
+    { id: '2', name: 'Michael Chen', role: 'Product Manager', company: 'Meta', expertise: ['Product Strategy', 'Roadmapping', 'Agile'], discordUsername: 'mchen_pm#5678' },
+    { id: '3', name: 'Emily Rodriguez', role: 'Frontend Lead', company: 'Netflix', expertise: ['React', 'TypeScript', 'UI Development'], discordUsername: 'emily_dev#9012' },
+    { id: '4', name: 'David Kim', role: 'Data Scientist', company: 'Amazon', expertise: ['Python', 'Machine Learning', 'Analytics'], discordUsername: 'dkim_data#3456' },
+  ])
+
+  const [internships] = useState<Internship[]>([
+    { id: '1', title: 'UX Design Intern', company: 'Google', location: 'Mountain View, CA', duration: '3 months', stipend: '$7,000/month', posted: '2 days ago', url: 'https://careers.google.com' },
+    { id: '2', title: 'Product Management Intern', company: 'Meta', location: 'Menlo Park, CA', duration: '12 weeks', stipend: '$8,500/month', posted: '1 week ago' },
+    { id: '3', title: 'Frontend Developer Intern', company: 'Netflix', location: 'Los Gatos, CA', duration: '4 months', stipend: '$6,500/month', posted: '3 days ago' },
+    { id: '4', title: 'Data Analytics Intern', company: 'Amazon', location: 'Seattle, WA', duration: '10 weeks', stipend: '$7,500/month', posted: '5 days ago' },
+    { id: '5', title: 'Marketing Intern', company: 'Apple', location: 'Cupertino, CA', duration: '3 months', stipend: '$6,000/month', posted: '1 week ago' },
+  ])
+
+  const [pathTasks, setPathTasks] = useState<Task[]>([
+    { id: '1', title: 'Complete UX Design Fundamentals Course', completed: true },
+    { id: '2', title: 'Build 3 Portfolio Projects', completed: true },
+    { id: '3', title: 'Learn Figma & Adobe XD', completed: true },
+    { id: '4', title: 'Complete Design Internship', completed: false },
+    { id: '5', title: 'Create Case Studies', completed: false },
+    { id: '6', title: 'Network with 5 UX Professionals', completed: false },
+  ])
+
+  const [suggestedPath, setSuggestedPath] = useState<CareerPath>({
+    id: 'ux-designer',
+    title: 'UX Designer',
+    icon: '🎨',
+    description: 'Create intuitive and beautiful user experiences for digital products',
+    avgSalary: '$85,000 - $120,000',
+    growth: '+18% (Faster than average)',
+    skills: ['Figma', 'User Research', 'Prototyping', 'UI Design', 'Wireframing'],
+    color: '#8B5CF6',
+    recommended: true
+  })
+
+  const alternativePaths: CareerPath[] = [
+    {
+      id: 'product-manager',
+      title: 'Product Manager',
+      icon: '📊',
+      description: 'Lead product strategy and work with cross-functional teams',
+      avgSalary: '$95,000 - $140,000',
+      growth: '+22% (Much faster than average)',
+      skills: ['Strategy', 'Analytics', 'Communication', 'Roadmapping', 'Agile'],
+      color: '#3B82F6'
+    },
+    {
+      id: 'frontend-dev',
+      title: 'Frontend Developer',
+      icon: '💻',
+      description: 'Build interactive web applications and user interfaces',
+      avgSalary: '$75,000 - $110,000',
+      growth: '+16% (Faster than average)',
+      skills: ['React', 'JavaScript', 'CSS', 'TypeScript', 'Git'],
+      color: '#10B981'
+    },
+    {
+      id: 'data-analyst',
+      title: 'Data Analyst',
+      icon: '📈',
+      description: 'Analyze data to drive business decisions and insights',
+      avgSalary: '$70,000 - $100,000',
+      growth: '+25% (Much faster than average)',
+      skills: ['SQL', 'Python', 'Excel', 'Tableau', 'Statistics'],
+      color: '#F59E0B'
+    },
+    {
+      id: 'marketing',
+      title: 'Digital Marketing Specialist',
+      icon: '📱',
+      description: 'Create and execute digital marketing campaigns',
+      avgSalary: '$60,000 - $90,000',
+      growth: '+10% (Average)',
+      skills: ['SEO', 'Content Marketing', 'Analytics', 'Social Media', 'Ads'],
+      color: '#EC4899'
+    },
+    {
+      id: 'business-analyst',
+      title: 'Business Analyst',
+      icon: '💼',
+      description: 'Bridge technology and business to improve processes',
+      avgSalary: '$70,000 - $105,000',
+      growth: '+14% (Faster than average)',
+      skills: ['Requirements Analysis', 'Process Mapping', 'SQL', 'Communication', 'Problem Solving'],
+      color: '#EF4444'
+    },
+  ]
+
+  const completedTasks = pathTasks.filter(t => t.completed).length
+  const progress = (completedTasks / pathTasks.length) * 100
+
+  const handleTaskToggle = (taskId: string) => {
+    setPathTasks(pathTasks.map(task => 
+      task.id === taskId ? { ...task, completed: !task.completed } : task
+    ))
+  }
+
+  const handleAddApplication = () => {
+    if (!newApp.position || !newApp.company || !newApp.location) return
+    
+    const application: Application = {
+      id: Date.now().toString(),
+      position: newApp.position,
+      company: newApp.company,
+      location: newApp.location,
+      status: newApp.status,
+      appliedDate: new Date(),
+      url: newApp.url || undefined
+    }
+    
+    setApplications([application, ...applications])
+    setNewApp({ position: '', company: '', location: '', status: 'Applied', url: '' })
+    setShowAddApplication(false)
+  }
+
+  const handleChooseCareer = (path: CareerPath) => {
+    setSuggestedPath({ ...path, recommended: true })
+    setShowChooseCareer(false)
+  }
+
+  const getStatusColor = (status: Application['status']) => {
+    switch (status) {
+      case 'Applied': return '#3B82F6'
+      case 'Interviewed': return '#F59E0B'
+      case 'Offered': return '#10B981'
+      case 'Rejected': return '#EF4444'
+      case 'Awaiting Interview': return '#8B5CF6'
+    }
+  }
+
+  const getStatusIcon = (status: Application['status']) => {
+    switch (status) {
+      case 'Offered': return '✅'
+      case 'Rejected': return '❌'
+      case 'Interviewed': return '💬'
+      case 'Awaiting Interview': return '⏳'
+      default: return '📝'
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#F0F4FF] via-[#E8F4F8] to-[#FFF5F7] pb-20">
+      {/* Header */}
+      <div className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#3B82F6] to-[#1E40AF] rounded-2xl flex items-center justify-center shadow-lg">
+                <Briefcase className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-[#1F4E79]">Career Planner</h1>
+                <p className="text-sm text-gray-600 mt-0.5">Plan your path to success 🚀</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Suggested Path Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] rounded-3xl shadow-2xl p-8 mb-8 text-white border-4 border-[#A78BFA]/30"
+        >
+          <div className="flex items-start justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <div className="text-6xl">{suggestedPath.icon}</div>
+              <div>
+                <div className="text-sm text-white/80 mb-1">🎯 Suggested Career Path</div>
+                <h2 className="text-3xl font-bold mb-2">{suggestedPath.title}</h2>
+                <p className="text-white/90">{suggestedPath.description}</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowCreateCustomPath(true)}
+                className="px-6 py-3 bg-white/90 text-[#8B5CF6] font-semibold rounded-xl hover:scale-105 transition-transform flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Create Custom Path
+              </button>
+              <button
+                onClick={() => setShowChooseCareer(true)}
+                className="px-6 py-3 bg-white/90 text-[#8B5CF6] font-semibold rounded-xl hover:scale-105 transition-transform flex items-center gap-2"
+              >
+                <Edit2 className="w-4 h-4" />
+                Change Path
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedPath(suggestedPath)
+                  setShowPathDetails(true)
+                }}
+                className="px-6 py-3 bg-white text-[#8B5CF6] font-semibold rounded-xl hover:scale-105 transition-transform flex items-center gap-2"
+              >
+                View Details
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Progress Section */}
+          <div className="space-y-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-white/80">Your Progress</span>
+              <span className="font-semibold">{completedTasks}/{pathTasks.length} tasks completed</span>
+            </div>
+            <div className="w-full h-4 bg-white/20 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className="h-full bg-white rounded-full relative overflow-hidden"
+              >
+                <motion.div
+                  animate={{ x: ['-100%', '100%'] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                />
+              </motion.div>
+            </div>
+            <div className="flex justify-between text-sm text-white/80">
+              <span>Getting Started</span>
+              <span>Career Ready</span>
+            </div>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="grid grid-cols-2 gap-4 mt-6">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
+              <div className="text-sm text-white/80 mb-1">Avg. Salary Range</div>
+              <div className="text-xl font-bold">{suggestedPath.avgSalary}</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
+              <div className="text-sm text-white/80 mb-1">Job Growth</div>
+              <div className="text-xl font-bold flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                {suggestedPath.growth}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left: Applications Tracker */}
+          <div className="lg:col-span-2">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <FileText className="w-6 h-6 text-[#3B82F6]" />
+                  <h2 className="text-2xl font-bold text-[#1F4E79]">Applications Tracker</h2>
+                </div>
+                <motion.button
+                  onClick={() => setShowAddApplication(true)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-4 py-2 bg-[#3B82F6] text-white rounded-xl font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add
+                </motion.button>
+              </div>
+
+              {/* Applications List */}
+              <div className="space-y-3">
+                {applications.map((app, index) => (
+                  <motion.div
+                    key={app.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="p-4 rounded-2xl border-2 border-gray-200 hover:border-[#3B82F6]/50 hover:shadow-md transition-all group"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-4 flex-1">
+                        <div className="text-3xl">{getStatusIcon(app.status)}</div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="font-bold text-lg text-[#1F4E79]">{app.position}</h3>
+                            {app.url && (
+                              <a
+                                href={app.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <ExternalLink className="w-4 h-4 text-[#3B82F6]" />
+                              </a>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                            <div className="flex items-center gap-1">
+                              <Building2 className="w-4 h-4" />
+                              <span>{app.company}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-4 h-4" />
+                              <span>{app.location}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-4 h-4" />
+                              <span>{format(app.appliedDate, 'MMM d, yyyy')}</span>
+                            </div>
+                          </div>
+                          <div
+                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
+                            style={{ 
+                              backgroundColor: `${getStatusColor(app.status)}20`,
+                              color: getStatusColor(app.status)
+                            }}
+                          >
+                            {app.status}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Stats Summary */}
+              <div className="grid grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-200">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-[#3B82F6]">
+                    {applications.filter(a => a.status === 'Applied').length}
+                  </div>
+                  <div className="text-xs text-gray-600 mt-1">Applied</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-[#F59E0B]">
+                    {applications.filter(a => a.status === 'Interviewed' || a.status === 'Awaiting Interview').length}
+                  </div>
+                  <div className="text-xs text-gray-600 mt-1">Interview</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-[#10B981]">
+                    {applications.filter(a => a.status === 'Offered').length}
+                  </div>
+                  <div className="text-xs text-gray-600 mt-1">Offered</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-[#EF4444]">
+                    {applications.filter(a => a.status === 'Rejected').length}
+                  </div>
+                  <div className="text-xs text-gray-600 mt-1">Rejected</div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Right: Quick Links */}
+          <div className="space-y-6">
+            {/* Mentorship Card */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              onClick={() => setShowMentors(true)}
+              className="bg-gradient-to-br from-[#10B981] to-[#059669] rounded-3xl shadow-xl p-6 text-white cursor-pointer hover:scale-105 transition-transform"
+            >
+              <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-4">
+                <Users className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Find a Mentor</h3>
+              <p className="text-white/90 text-sm mb-4">Connect with professionals in your field</p>
+              <button className="px-4 py-2 bg-white text-[#10B981] rounded-xl font-semibold hover:scale-105 transition-transform text-sm flex items-center gap-2">
+                Browse Mentors
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </motion.div>
+
+            {/* Resources Card */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              onClick={() => setShowResources(true)}
+              className="bg-white rounded-3xl shadow-lg p-6 border-2 border-[#F59E0B] cursor-pointer hover:scale-105 transition-transform"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Lightbulb className="w-6 h-6 text-[#F59E0B]" />
+                <h3 className="text-xl font-bold text-[#1F4E79]">Career Resources</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">Access guides, templates, and community support</p>
+              <button className="px-4 py-2 bg-[#F59E0B] text-white rounded-xl font-semibold hover:scale-105 transition-transform text-sm flex items-center gap-2">
+                View Resources
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </motion.div>
+
+            {/* LinkedIn Internship Board */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+              className="bg-white rounded-3xl shadow-lg p-6 border-2 border-[#EC4899]/40"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-[#EC4899]/10 rounded-2xl flex items-center justify-center">
+                    <Award className="w-6 h-6 text-[#EC4899]" />
+                  </div>
+                  <h3 className="text-xl font-bold text-[#1F4E79]">Internship Board</h3>
+                </div>
+                <button onClick={fetchOpps} className="px-3 py-2 rounded-xl border-2 border-gray-200 text-sm font-semibold hover:bg-gray-50">
+                  {loadingOpps ? 'Loading...' : 'Refresh'}
+                </button>
+              </div>
+              {oppError && (
+                <div className="text-sm text-red-600">{oppError}</div>
+              )}
+              <div className="space-y-3">
+                {(loadingOpps ? [] : opps).slice(0,6).map((opp) => {
+                  const company = (opp.organization || opp.company || '').trim()
+                  const when = opp.deadline || opp.postedAt
+                  return (
+                    <div key={opp.id} className="p-4 rounded-2xl border-2 border-gray-100 hover:border-[#EC4899]/40 transition-all">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="font-semibold text-[#1F4E79] truncate">{opp.title}</div>
+                          <div className="text-sm text-gray-600 truncate">{company}</div>
+                        </div>
+                        {opp.url && (
+                          <a href={opp.url} target="_blank" rel="noopener noreferrer" className="text-[#EC4899] flex-shrink-0">
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                        )}
+                      </div>
+                      {when && <div className="text-xs text-gray-500 mt-1">{when}</div>}
+                    </div>
+                  )
+                })}
+                {!loadingOpps && opps.length === 0 && !oppError && (
+                  <div className="text-sm text-gray-600">No opportunities right now.</div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Alternative Career Paths */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mt-8"
+        >
+          <h2 className="text-2xl font-bold text-[#1F4E79] mb-6 flex items-center gap-3">
+            <Target className="w-6 h-6 text-[#3B82F6]" />
+            Explore Other Paths
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {alternativePaths.map((path, index) => (
+              <motion.div
+                key={path.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 + index * 0.05 }}
+                whileHover={{ y: -8, scale: 1.02 }}
+                onClick={() => {
+                  setSelectedPath(path)
+                  setShowPathDetails(true)
+                }}
+                className="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all p-6 cursor-pointer border-2 border-gray-100 hover:border-[#3B82F6]/50"
+              >
+                <div className="text-5xl mb-4">{path.icon}</div>
+                <h3 className="font-bold text-lg text-[#1F4E79] mb-2">{path.title}</h3>
+                <p className="text-sm text-gray-600 mb-4 line-clamp-2">{path.description}</p>
+                <div className="space-y-2 mb-4">
+                  <div className="text-xs text-gray-600">Salary: <span className="font-semibold text-[#10B981]">{path.avgSalary}</span></div>
+                  <div className="text-xs text-gray-600">Growth: <span className="font-semibold" style={{ color: path.color }}>{path.growth}</span></div>
+                </div>
+                <button
+                  className="w-full py-2 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all"
+                  style={{ backgroundColor: `${path.color}20`, color: path.color }}
+                >
+                  View Details
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Path Details Modal */}
+      <AnimatePresence>
+        {showPathDetails && selectedPath && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowPathDetails(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-50"
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div
+                  className="p-6"
+                  style={{ background: `linear-gradient(135deg, ${selectedPath.color}20 0%, ${selectedPath.color}10 100%)` }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="text-6xl">{selectedPath.icon}</div>
+                      <div>
+                        <h2 className="text-2xl font-bold text-[#1F4E79]">{selectedPath.title}</h2>
+                        <p className="text-gray-600 mt-1">{selectedPath.description}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowPathDetails(false)}
+                      className="p-2 hover:bg-white/50 rounded-lg transition-all"
+                    >
+                      <X className="w-6 h-6 text-gray-600" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-6">
+                  {/* Key Skills */}
+                  <div>
+                    <h3 className="font-bold text-lg text-[#1F4E79] mb-3">Key Skills Required</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedPath.skills.map((skill) => (
+                        <div
+                          key={skill}
+                          className="px-4 py-2 rounded-xl font-semibold text-sm"
+                          style={{ backgroundColor: `${selectedPath.color}20`, color: selectedPath.color }}
+                        >
+                          {skill}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Career Info */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-gray-50 rounded-2xl">
+                      <div className="text-sm text-gray-600 mb-1">Salary Range</div>
+                      <div className="font-bold text-lg text-[#10B981]">{selectedPath.avgSalary}</div>
+                    </div>
+                    <div className="p-4 bg-gray-50 rounded-2xl">
+                      <div className="text-sm text-gray-600 mb-1">Job Growth</div>
+                      <div className="font-bold text-lg" style={{ color: selectedPath.color }}>
+                        {selectedPath.growth}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tasks (only for suggested path) */}
+                  {selectedPath.recommended && (
+                    <div>
+                      <h3 className="font-bold text-lg text-[#1F4E79] mb-3">Your Career Tasks</h3>
+                      <div className="space-y-2">
+                        {pathTasks.map((task) => (
+                          <div
+                            key={task.id}
+                            onClick={() => handleTaskToggle(task.id)}
+                            className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${
+                              task.completed ? 'bg-green-50' : 'bg-gray-50 hover:bg-gray-100'
+                            }`}
+                          >
+                            {task.completed ? (
+                              <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                            ) : (
+                              <Circle className="w-5 h-5 text-gray-300 flex-shrink-0" />
+                            )}
+                            <span className={`text-sm ${task.completed ? 'text-gray-500 line-through' : 'text-gray-700 font-medium'}`}>
+                              {task.title}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action Button */}
+                  <button
+                    onClick={() => window.open('https://www.bls.gov/ooh/', '_blank')}
+                    className="w-full py-4 rounded-2xl text-white font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                    style={{ background: `linear-gradient(135deg, ${selectedPath.color} 0%, ${selectedPath.color}dd 100%)` }}
+                  >
+                    <BookOpen className="w-5 h-5" />
+                    Learn More About This Path
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Add Application Modal */}
+      <AnimatePresence>
+        {showAddApplication && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowAddApplication(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-50"
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="bg-gradient-to-br from-[#3B82F6] to-[#1E40AF] p-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-white">Add Application</h2>
+                    <button
+                      onClick={() => setShowAddApplication(false)}
+                      className="p-2 hover:bg-white/20 rounded-lg transition-all"
+                    >
+                      <X className="w-6 h-6 text-white" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Position Title *</label>
+                    <input
+                      type="text"
+                      value={newApp.position}
+                      onChange={(e) => setNewApp({ ...newApp, position: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#3B82F6] focus:outline-none transition-colors"
+                      placeholder="e.g., UX Design Intern"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Company *</label>
+                    <input
+                      type="text"
+                      value={newApp.company}
+                      onChange={(e) => setNewApp({ ...newApp, company: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#3B82F6] focus:outline-none transition-colors"
+                      placeholder="e.g., Google"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Location *</label>
+                    <input
+                      type="text"
+                      value={newApp.location}
+                      onChange={(e) => setNewApp({ ...newApp, location: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#3B82F6] focus:outline-none transition-colors"
+                      placeholder="e.g., Mountain View, CA"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                    <select
+                      value={newApp.status}
+                      onChange={(e) => setNewApp({ ...newApp, status: e.target.value as Application['status'] })}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#3B82F6] focus:outline-none transition-colors"
+                    >
+                      <option value="Applied">Applied</option>
+                      <option value="Awaiting Interview">Awaiting Interview</option>
+                      <option value="Interviewed">Interviewed</option>
+                      <option value="Offered">Offered</option>
+                      <option value="Rejected">Rejected</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Job URL (Optional)</label>
+                    <input
+                      type="url"
+                      value={newApp.url}
+                      onChange={(e) => setNewApp({ ...newApp, url: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#3B82F6] focus:outline-none transition-colors"
+                      placeholder="https://..."
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleAddApplication}
+                    disabled={!newApp.position || !newApp.company || !newApp.location}
+                    className="w-full py-4 bg-gradient-to-r from-[#3B82F6] to-[#1E40AF] text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Add Application
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Choose Career Modal */}
+      <AnimatePresence>
+        {showChooseCareer && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowChooseCareer(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-50"
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] p-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-white">Choose Your Career Path</h2>
+                    <button
+                      onClick={() => setShowChooseCareer(false)}
+                      className="p-2 hover:bg-white/20 rounded-lg transition-all"
+                    >
+                      <X className="w-6 h-6 text-white" />
+                    </button>
+                  </div>
+                  <p className="text-white/90 mt-2">Select the career path you want to focus on</p>
+                </div>
+
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[suggestedPath, ...alternativePaths].map((path) => (
+                    <motion.div
+                      key={path.id}
+                      whileHover={{ y: -4, scale: 1.02 }}
+                      onClick={() => handleChooseCareer(path)}
+                      className="p-5 rounded-2xl border-2 border-gray-200 hover:border-[#8B5CF6] cursor-pointer transition-all"
+                    >
+                      <div className="text-4xl mb-3">{path.icon}</div>
+                      <h3 className="font-bold text-lg text-[#1F4E79] mb-2">{path.title}</h3>
+                      <p className="text-xs text-gray-600 mb-3 line-clamp-2">{path.description}</p>
+                      <div className="text-xs text-gray-600 mb-2">Salary: <span className="font-semibold text-[#10B981]">{path.avgSalary}</span></div>
+                      <div className="text-xs text-gray-600">Growth: <span className="font-semibold" style={{ color: path.color }}>{path.growth}</span></div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Create Custom Path Modal */}
+      <AnimatePresence>
+        {showCreateCustomPath && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowCreateCustomPath(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-50"
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] p-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-white">Create Custom Path</h2>
+                    <button onClick={() => setShowCreateCustomPath(false)} className="p-2 hover:bg-white/20 rounded-lg transition-all">
+                      <X className="w-6 h-6 text-white" />
+                    </button>
+                  </div>
+                  <p className="text-white/90 mt-1">Define a path with your own tasks</p>
+                </div>
+                <div className="p-6 space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+                    <input value={customTitle} onChange={(e)=>setCustomTitle(e.target.value)} className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#8B5CF6] focus:outline-none" placeholder="e.g., UX Career Sprint" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                    <textarea value={customDesc} onChange={(e)=>setCustomDesc(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#8B5CF6] focus:outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Ordered Tasks</label>
+                    <div className="space-y-2">
+                      {customTasks.map((t, idx)=> (
+                        <div key={idx} className="flex gap-2">
+                          <input value={t} onChange={(e)=>{
+                            const next=[...customTasks]; next[idx]=e.target.value; setCustomTasks(next)
+                          }} className="flex-1 px-4 py-2 rounded-xl border-2 border-gray-200" placeholder={`Task ${idx+1}`} />
+                          <button onClick={()=> setCustomTasks(customTasks.filter((_,i)=>i!==idx))} className="px-3 py-2 border-2 rounded-xl">Remove</button>
+                        </div>
+                      ))}
+                      <button onClick={()=> setCustomTasks([...customTasks, ''])} className="px-4 py-2 rounded-xl border-2 border-gray-200 text-sm">Add Task</button>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (!customTitle.trim()) return
+                      const slug = customTitle.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') || `custom-${Date.now()}`
+                      const newPath: CareerPath = {
+                        id: slug,
+                        title: customTitle.trim(),
+                        icon: '🌟',
+                        description: customDesc.trim() || 'Custom career path',
+                        avgSalary: '—',
+                        growth: '—',
+                        skills: [],
+                        color: '#8B5CF6',
+                        recommended: true
+                      }
+                      const tasks: Task[] = customTasks.map((t, i) => ({ id: `${Date.now()}-${i}`, title: t.trim() || `Task ${i+1}` , completed: false }))
+                      setSuggestedPath(newPath)
+                      setSelectedPath(newPath)
+                      setPathTasks(tasks)
+                      setShowCreateCustomPath(false)
+                      setShowPathDetails(true)
+                      setCustomTitle(''); setCustomDesc(''); setCustomTasks([''])
+                    }}
+                    className="w-full py-4 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                  >
+                    Save and Set as Current Path
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Mentors Modal */}
+      <AnimatePresence>
+        {showMentors && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowMentors(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-50"
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="bg-gradient-to-br from-[#10B981] to-[#059669] p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold text-white">Find a Mentor</h2>
+                      <p className="text-white/90 mt-1">Connect with experienced professionals</p>
+                    </div>
+                    <button
+                      onClick={() => setShowMentors(false)}
+                      className="p-2 hover:bg-white/20 rounded-lg transition-all"
+                    >
+                      <X className="w-6 h-6 text-white" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  {mentors.map((mentor) => (
+                    <div key={mentor.id} className="p-5 rounded-2xl border-2 border-gray-200 hover:border-[#10B981] transition-all">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h3 className="font-bold text-lg text-[#1F4E79]">{mentor.name}</h3>
+                          <p className="text-sm text-gray-600">{mentor.role} at {mentor.company}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <a
+                            href={`https://discord.com/users/${mentor.discordUsername.split('#')[0]}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-4 py-2 bg-[#5865F2] text-white rounded-xl font-semibold hover:scale-105 transition-transform text-sm flex items-center gap-2"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            Discord
+                          </a>
+                          <a
+                            href={`https://t.me/${mentor.discordUsername.split('#')[0]}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-4 py-2 bg-[#0088cc] text-white rounded-xl font-semibold hover:scale-105 transition-transform text-sm flex items-center gap-2"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            Telegram
+                          </a>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                        <span className="font-semibold">Discord:</span>
+                        <code className="px-2 py-1 bg-gray-100 rounded text-xs">{mentor.discordUsername}</code>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {mentor.expertise.map((skill) => (
+                          <span key={skill} className="px-3 py-1 bg-[#10B981]/10 text-[#10B981] rounded-lg text-xs font-semibold">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Resources Modal */}
+      <AnimatePresence>
+        {showResources && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowResources(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-50"
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="bg-gradient-to-br from-[#F59E0B] to-[#D97706] p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold text-white">Career Resources</h2>
+                      <p className="text-white/90 mt-1">Templates, guides, and community support</p>
+                    </div>
+                    <button
+                      onClick={() => setShowResources(false)}
+                      className="p-2 hover:bg-white/20 rounded-lg transition-all"
+                    >
+                      <X className="w-6 h-6 text-white" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  <div className="p-5 rounded-2xl border-2 border-gray-200">
+                    <h3 className="font-bold text-lg text-[#1F4E79] mb-3">📄 Resume Templates</h3>
+                    <p className="text-sm text-gray-600 mb-3">Get professional resume templates and tips from our community</p>
+                    <div className="flex gap-2">
+                      <a
+                        href="https://discord.gg/career-resources"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 bg-[#5865F2] text-white rounded-xl font-semibold hover:scale-105 transition-transform text-sm flex items-center gap-2"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Discord Community
+                      </a>
+                      <a
+                        href="https://t.me/career_resources"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 bg-[#0088cc] text-white rounded-xl font-semibold hover:scale-105 transition-transform text-sm flex items-center gap-2"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Telegram Group
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="p-5 rounded-2xl border-2 border-gray-200">
+                    <h3 className="font-bold text-lg text-[#1F4E79] mb-3">💼 Interview Prep</h3>
+                    <p className="text-sm text-gray-600 mb-3">Practice with peers and get feedback on your interview skills</p>
+                    <div className="flex gap-2">
+                      <a
+                        href="https://discord.gg/interview-prep"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 bg-[#5865F2] text-white rounded-xl font-semibold hover:scale-105 transition-transform text-sm flex items-center gap-2"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Discord Community
+                      </a>
+                      <a
+                        href="https://t.me/interview_prep"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 bg-[#0088cc] text-white rounded-xl font-semibold hover:scale-105 transition-transform text-sm flex items-center gap-2"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Telegram Group
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="p-5 rounded-2xl border-2 border-gray-200">
+                    <h3 className="font-bold text-lg text-[#1F4E79] mb-3">✍️ Cover Letter Guide</h3>
+                    <p className="text-sm text-gray-600 mb-3">Learn how to write compelling cover letters</p>
+                    <div className="flex gap-2">
+                      <a
+                        href="https://discord.gg/cover-letters"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 bg-[#5865F2] text-white rounded-xl font-semibold hover:scale-105 transition-transform text-sm flex items-center gap-2"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Discord Community
+                      </a>
+                      <a
+                        href="https://t.me/cover_letters"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 bg-[#0088cc] text-white rounded-xl font-semibold hover:scale-105 transition-transform text-sm flex items-center gap-2"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Telegram Group
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="p-5 rounded-2xl border-2 border-gray-200">
+                    <h3 className="font-bold text-lg text-[#1F4E79] mb-3">🤝 Networking Tips</h3>
+                    <p className="text-sm text-gray-600 mb-3">Connect with professionals and expand your network</p>
+                    <div className="flex gap-2">
+                      <a
+                        href="https://discord.gg/networking"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 bg-[#5865F2] text-white rounded-xl font-semibold hover:scale-105 transition-transform text-sm flex items-center gap-2"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Discord Community
+                      </a>
+                      <a
+                        href="https://t.me/networking_tips"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 bg-[#0088cc] text-white rounded-xl font-semibold hover:scale-105 transition-transform text-sm flex items-center gap-2"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Telegram Group
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Internships Modal */}
+      <AnimatePresence>
+        {showInternships && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowInternships(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-50"
+            />
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="bg-gradient-to-br from-[#EC4899] to-[#DB2777] p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold text-white">Internship Board</h2>
+                      <p className="text-white/90 mt-1">{internships.length} opportunities available</p>
+                    </div>
+                    <button
+                      onClick={() => setShowInternships(false)}
+                      className="p-2 hover:bg-white/20 rounded-lg transition-all"
+                    >
+                      <X className="w-6 h-6 text-white" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  {internships.map((internship) => (
+                    <div key={internship.id} className="p-5 rounded-2xl border-2 border-gray-200 hover:border-[#EC4899] transition-all">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="font-bold text-lg text-[#1F4E79]">{internship.title}</h3>
+                            {internship.url && (
+                              <a
+                                href={internship.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[#EC4899] hover:scale-110 transition-transform"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                            <div className="flex items-center gap-1">
+                              <Building2 className="w-4 h-4" />
+                              <span>{internship.company}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-4 h-4" />
+                              <span>{internship.location}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4 text-sm">
+                            <div className="flex items-center gap-1 text-gray-600">
+                              <Calendar className="w-4 h-4" />
+                              <span>{internship.duration}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-[#10B981] font-semibold">
+                              <DollarSign className="w-4 h-4" />
+                              <span>{internship.stipend}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-500">{internship.posted}</div>
+                      </div>
+                      <button className="w-full py-2 bg-gradient-to-r from-[#EC4899] to-[#DB2777] text-white rounded-xl font-semibold hover:scale-105 transition-transform text-sm">
+                        Apply Now
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}

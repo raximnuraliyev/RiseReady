@@ -1,0 +1,668 @@
+import { useState, useEffect, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { 
+  Play,
+  Pause,
+  RotateCcw,
+  Trophy,
+  Zap,
+  Target,
+  Star,
+  Award,
+  TrendingUp,
+  Clock,
+  ChevronLeft,
+  ChevronRight,
+  Volume2,
+  VolumeX
+} from 'lucide-react'
+
+export type StudySession = {
+  id: string
+  duration: number // in minutes
+  points: number
+  completedAt: Date
+}
+
+export type Badge = {
+  id: string
+  name: string
+  description: string
+  icon: string
+  requirement: number
+  unlocked: boolean
+  progress: number
+  color: string
+}
+
+export default function FocusPage() {
+  // Timer State
+  const [duration, setDuration] = useState(25) // minutes
+  const [timeLeft, setTimeLeft] = useState(duration * 60) // seconds
+  const [isActive, setIsActive] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
+  const [sessions, setSessions] = useState<StudySession[]>([])
+  const [soundEnabled, setSoundEnabled] = useState(true)
+
+  // Gamification State
+  const [totalPoints, setTotalPoints] = useState(1250)
+  const [level, setLevel] = useState(5)
+  const [pointsToNextLevel, setPointsToNextLevel] = useState(250)
+  const [showPointsAnimation, setShowPointsAnimation] = useState(false)
+  const [earnedPoints, setEarnedPoints] = useState(0)
+  const [showBadgeUnlock, setShowBadgeUnlock] = useState(false)
+  const [unlockedBadge, setUnlockedBadge] = useState<Badge | null>(null)
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Badge State
+  const [badges, setBadges] = useState<Badge[]>([
+    {
+      id: 'first-session',
+      name: 'First Steps',
+      description: 'Complete your first study session',
+      icon: '🎯',
+      requirement: 1,
+      unlocked: true,
+      progress: 1,
+      color: '#10B981'
+    },
+    {
+      id: 'early-bird',
+      name: 'Early Bird',
+      description: 'Study before 8 AM',
+      icon: '🌅',
+      requirement: 1,
+      unlocked: true,
+      progress: 1,
+      color: '#F59E0B'
+    },
+    {
+      id: '5-sessions',
+      name: 'Dedicated Student',
+      description: 'Complete 5 study sessions',
+      icon: '📚',
+      requirement: 5,
+      unlocked: true,
+      progress: 5,
+      color: '#3B82F6'
+    },
+    {
+      id: '10-sessions',
+      name: 'Study Master',
+      description: 'Complete 10 study sessions',
+      icon: '🏆',
+      requirement: 10,
+      unlocked: false,
+      progress: 7,
+      color: '#EF4444'
+    },
+    {
+      id: '25-sessions',
+      name: 'Productivity Pro',
+      description: 'Complete 25 study sessions',
+      icon: '⚡',
+      requirement: 25,
+      unlocked: false,
+      progress: 7,
+      color: '#8B5CF6'
+    },
+    {
+      id: '50-sessions',
+      name: 'Academic Legend',
+      description: 'Complete 50 study sessions',
+      icon: '👑',
+      requirement: 50,
+      unlocked: false,
+      progress: 7,
+      color: '#EC4899'
+    },
+    {
+      id: 'week-streak',
+      name: 'Week Warrior',
+      description: 'Study 7 days in a row',
+      icon: '🔥',
+      requirement: 7,
+      unlocked: false,
+      progress: 3,
+      color: '#F59E0B'
+    },
+    {
+      id: 'night-owl',
+      name: 'Night Owl',
+      description: 'Study after 10 PM',
+      icon: '🦉',
+      requirement: 1,
+      unlocked: false,
+      progress: 0,
+      color: '#6366F1'
+    },
+  ])
+
+  const [badgeScroll, setBadgeScroll] = useState(0)
+
+  // Timer durations
+  const durations = [15, 25, 30, 45, 60]
+
+  useEffect(() => {
+    if (isActive && !isPaused && timeLeft > 0) {
+      intervalRef.current = setInterval(() => {
+        setTimeLeft((time) => time - 1)
+      }, 1000)
+    } else if (timeLeft === 0 && isActive) {
+      handleSessionComplete()
+    }
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [isActive, isPaused, timeLeft])
+
+  const handleStart = () => {
+    setIsActive(true)
+    setIsPaused(false)
+  }
+
+  const handlePause = () => {
+    setIsPaused(!isPaused)
+  }
+
+  const handleReset = () => {
+    setIsActive(false)
+    setIsPaused(false)
+    setTimeLeft(duration * 60)
+  }
+
+  const handleSessionComplete = () => {
+    setIsActive(false)
+    
+    // Calculate points (50 points per session + bonus for longer sessions)
+    const points = duration >= 45 ? 100 : duration >= 30 ? 75 : 50
+    
+    // Save session
+    const newSession: StudySession = {
+      id: Date.now().toString(),
+      duration,
+      points,
+      completedAt: new Date()
+    }
+    setSessions([...sessions, newSession])
+
+    // Update points and level
+    const newTotalPoints = totalPoints + points
+    setTotalPoints(newTotalPoints)
+    setEarnedPoints(points)
+    setShowPointsAnimation(true)
+    setTimeout(() => setShowPointsAnimation(false), 3000)
+
+    // Check level up
+    if (newTotalPoints >= totalPoints + pointsToNextLevel) {
+      setLevel(level + 1)
+      setPointsToNextLevel(pointsToNextLevel + 250)
+    }
+
+    // Check badge unlocks
+    checkBadgeUnlocks(sessions.length + 1)
+
+    // Play completion sound
+    if (soundEnabled) {
+      // Play a completion sound
+    }
+
+    // Reset timer
+    setTimeLeft(duration * 60)
+  }
+
+  const checkBadgeUnlocks = (sessionCount: number) => {
+    const updatedBadges = badges.map(badge => {
+      if (!badge.unlocked && badge.id === '10-sessions' && sessionCount >= 10) {
+        setUnlockedBadge(badge)
+        setShowBadgeUnlock(true)
+        setTimeout(() => setShowBadgeUnlock(false), 4000)
+        return { ...badge, unlocked: true, progress: badge.requirement }
+      }
+      return badge
+    })
+    setBadges(updatedBadges)
+  }
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
+  const progress = ((duration * 60 - timeLeft) / (duration * 60)) * 100
+
+  const scrollBadges = (direction: 'left' | 'right') => {
+    const container = document.getElementById('badges-container')
+    if (container) {
+      const scrollAmount = direction === 'left' ? -300 : 300
+      container.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#FEF3C7] via-[#FDE68A] to-[#FCD34D] pb-20">
+      {/* Header */}
+      <div className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#F59E0B] to-[#D97706] rounded-2xl flex items-center justify-center shadow-lg">
+                <Target className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-[#1F4E79]">Focus Zone</h1>
+                <p className="text-sm text-gray-600 mt-0.5">Stay focused, earn rewards 🎯</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Timer Section - Takes 2 columns */}
+          <div className="lg:col-span-2">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border-4 border-[#FCD34D]"
+            >
+              {/* Duration Selector */}
+              {!isActive && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex justify-center gap-3 mb-8 flex-wrap"
+                >
+                  {durations.map((dur) => (
+                    <motion.button
+                      key={dur}
+                      onClick={() => {
+                        setDuration(dur)
+                        setTimeLeft(dur * 60)
+                      }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`px-6 py-3 rounded-2xl font-semibold transition-all ${
+                        duration === dur
+                          ? 'bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white shadow-lg'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {dur} min
+                    </motion.button>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Timer Circle */}
+              <div className="relative w-full max-w-sm mx-auto aspect-square mb-8">
+                {/* Background Circle */}
+                <svg className="w-full h-full -rotate-90">
+                  <circle
+                    cx="50%"
+                    cy="50%"
+                    r="45%"
+                    fill="none"
+                    stroke="#F3F4F6"
+                    strokeWidth="12"
+                  />
+                  {/* Progress Circle */}
+                  <motion.circle
+                    cx="50%"
+                    cy="50%"
+                    r="45%"
+                    fill="none"
+                    stroke="url(#gradient)"
+                    strokeWidth="12"
+                    strokeLinecap="round"
+                    strokeDasharray={`${2 * Math.PI * 45} ${2 * Math.PI * 45}`}
+                    initial={{ strokeDashoffset: 2 * Math.PI * 45 }}
+                    animate={{ 
+                      strokeDashoffset: 2 * Math.PI * 45 * (1 - progress / 100)
+                    }}
+                    transition={{ duration: 0.5 }}
+                  />
+                  <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#F59E0B" />
+                      <stop offset="100%" stopColor="#D97706" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+
+                {/* Timer Text */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <motion.div
+                      key={timeLeft}
+                      initial={{ scale: 1.1 }}
+                      animate={{ scale: 1 }}
+                      className="text-6xl md:text-7xl font-bold text-[#1F4E79]"
+                    >
+                      {formatTime(timeLeft)}
+                    </motion.div>
+                    {isActive && (
+                      <div className="text-gray-600 mt-2">
+                        {isPaused ? 'Paused' : 'Focus Time'}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Controls */}
+              <div className="flex justify-center gap-4">
+                {!isActive ? (
+                  <motion.button
+                    onClick={handleStart}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-12 py-4 bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all flex items-center gap-3 text-lg"
+                  >
+                    <Play className="w-6 h-6" />
+                    Start Focus Session
+                  </motion.button>
+                ) : (
+                  <>
+                    <motion.button
+                      onClick={handlePause}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-8 py-4 bg-gradient-to-r from-[#3B82F6] to-[#2563EB] text-white font-bold rounded-2xl shadow-lg flex items-center gap-2"
+                    >
+                      {isPaused ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
+                      {isPaused ? 'Resume' : 'Pause'}
+                    </motion.button>
+                    <motion.button
+                      onClick={handleReset}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-8 py-4 bg-white border-2 border-gray-300 text-gray-700 font-bold rounded-2xl shadow-lg flex items-center gap-2"
+                    >
+                      <RotateCcw className="w-5 h-5" />
+                      Reset
+                    </motion.button>
+                  </>
+                )}
+              </div>
+
+              {/* Session Stats */}
+              {sessions.length > 0 && (
+                <div className="mt-8 pt-8 border-t border-gray-200">
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <div className="text-3xl font-bold text-[#F59E0B]">{sessions.length}</div>
+                      <div className="text-sm text-gray-600 mt-1">Sessions</div>
+                    </div>
+                    <div>
+                      <div className="text-3xl font-bold text-[#10B981]">
+                        {sessions.reduce((sum, s) => sum + s.duration, 0)}
+                      </div>
+                      <div className="text-sm text-gray-600 mt-1">Minutes</div>
+                    </div>
+                    <div>
+                      <div className="text-3xl font-bold text-[#8B5CF6]">
+                        {sessions.reduce((sum, s) => sum + s.points, 0)}
+                      </div>
+                      <div className="text-sm text-gray-600 mt-1">Points</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </div>
+
+          {/* Gamification Section */}
+          <div className="space-y-6">
+            {/* Points & Level Card */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] rounded-3xl shadow-xl p-6 text-white"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                    <Trophy className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-white/80">Level</div>
+                    <div className="text-3xl font-bold">{level}</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm text-white/80">Total Points</div>
+                  <div className="text-3xl font-bold">{totalPoints}</div>
+                </div>
+              </div>
+
+              {/* Progress to Next Level */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm text-white/80">
+                  <span>Next Level</span>
+                  <span>{pointsToNextLevel} points to go</span>
+                </div>
+                <div className="w-full h-3 bg-white/20 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${((totalPoints % 500) / 500) * 100}%` }}
+                    transition={{ duration: 1 }}
+                    className="h-full bg-white rounded-full"
+                  />
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Streak Card */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-3xl shadow-xl p-6 text-white"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                    <Zap className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-white/80">Current Streak</div>
+                    <div className="text-3xl font-bold">3 days</div>
+                  </div>
+                </div>
+                <div className="text-5xl">🔥</div>
+              </div>
+            </motion.div>
+
+            {/* Recent Achievement */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white rounded-3xl shadow-lg p-6 border-2 border-[#10B981]"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <Star className="w-5 h-5 text-[#F59E0B]" />
+                <h3 className="font-bold text-[#1F4E79]">Latest Achievement</h3>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-4xl">📚</div>
+                <div>
+                  <div className="font-semibold text-[#1F4E79]">Dedicated Student</div>
+                  <div className="text-sm text-gray-600">Completed 5 study sessions</div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Badges Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-8"
+        >
+          <div className="bg-white rounded-3xl shadow-xl p-8 border-2 border-[#FCD34D]">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <Award className="w-6 h-6 text-[#F59E0B]" />
+                <h2 className="text-2xl font-bold text-[#1F4E79]">Your Badges</h2>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => scrollBadges('left')}
+                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-600" />
+                </button>
+                <button
+                  onClick={() => scrollBadges('right')}
+                  className="p-2 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+            </div>
+
+            {/* Badges Carousel */}
+            <div
+              id="badges-container"
+              className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {badges.map((badge, index) => (
+                <motion.div
+                  key={badge.id}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={`flex-shrink-0 w-64 p-6 rounded-2xl border-2 transition-all ${
+                    badge.unlocked
+                      ? 'bg-gradient-to-br from-white to-gray-50 border-gray-200 shadow-lg'
+                      : 'bg-gray-100 border-gray-300 opacity-60'
+                  }`}
+                >
+                  <div className="text-center">
+                    <div className="text-6xl mb-3 filter" style={{ filter: badge.unlocked ? 'none' : 'grayscale(1)' }}>
+                      {badge.icon}
+                    </div>
+                    <h3 className="font-bold text-lg text-[#1F4E79] mb-1">{badge.name}</h3>
+                    <p className="text-sm text-gray-600 mb-3">{badge.description}</p>
+                    
+                    {/* Progress Bar */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs text-gray-600">
+                        <span>Progress</span>
+                        <span>{badge.progress}/{badge.requirement}</span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${(badge.progress / badge.requirement) * 100}%` }}
+                          transition={{ duration: 1, delay: index * 0.05 }}
+                          className="h-full rounded-full"
+                          style={{ backgroundColor: badge.color }}
+                        />
+                      </div>
+                    </div>
+
+                    {badge.unlocked && (
+                      <div className="mt-3 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold flex items-center justify-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" />
+                        Unlocked
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Points Animation */}
+      <AnimatePresence>
+        {showPointsAnimation && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5, y: 100 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.5, y: -100 }}
+            className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none"
+          >
+            <motion.div
+              animate={{ 
+                scale: [1, 1.2, 1],
+                rotate: [0, 10, -10, 0]
+              }}
+              transition={{ duration: 0.5 }}
+              className="bg-white rounded-3xl shadow-2xl p-8 border-4 border-[#F59E0B]"
+            >
+              <div className="text-center">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, ease: "easeInOut" }}
+                  className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-[#F59E0B] to-[#D97706] rounded-full flex items-center justify-center"
+                >
+                  <Star className="w-12 h-12 text-white" />
+                </motion.div>
+                <h3 className="text-2xl font-bold text-[#1F4E79] mb-2">Session Complete! 🎉</h3>
+                <motion.p
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: "spring" }}
+                  className="text-4xl font-bold text-[#F59E0B]"
+                >
+                  +{earnedPoints} Points
+                </motion.p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Badge Unlock Animation */}
+      <AnimatePresence>
+        {showBadgeUnlock && unlockedBadge && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.5, rotateY: 0 }}
+              animate={{ scale: 1, rotateY: 360 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+              transition={{ duration: 0.8, type: "spring" }}
+              className="bg-white rounded-3xl shadow-2xl p-12 border-4 border-[#10B981] max-w-md"
+            >
+              <div className="text-center">
+                <motion.div
+                  animate={{ 
+                    scale: [1, 1.2, 1],
+                  }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                  className="text-8xl mb-4"
+                >
+                  {unlockedBadge.icon}
+                </motion.div>
+                <h3 className="text-3xl font-bold text-[#1F4E79] mb-2">Badge Unlocked!</h3>
+                <p className="text-xl font-semibold text-[#10B981] mb-2">{unlockedBadge.name}</p>
+                <p className="text-gray-600">{unlockedBadge.description}</p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+// Missing import
+import { CheckCircle2 } from 'lucide-react'
