@@ -4,6 +4,8 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import ErrorBoundary from './components/ErrorBoundary'
 import useAuth from './hooks/useAuth'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 // Route-based code splitting for faster initial load
 const HomePage = lazy(() => import('./pages/HomePage'))
@@ -60,6 +62,7 @@ function App() {
 
   return (
     <ErrorBoundary>
+      <ToastContainer position="top-right" />
       <Suspense fallback={<LoadingSpinner />}>
         <Routes>
           {/* Public routes */}

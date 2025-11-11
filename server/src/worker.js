@@ -5,6 +5,7 @@ import { Notification } from './models/Notification.js'
 import { User } from './models/User.js'
 import nodemailer from 'nodemailer'
 import { io as ClientIO } from 'socket.io-client'
+import fetch from 'node-fetch'
 
 dotenv.config()
 
@@ -14,9 +15,34 @@ const SERVER_URL = process.env.WORKER_SOCKET_URL || (process.env.API_URL ? proce
 async function start() {
   await connectDB()
   console.log('[worker] connected to DB')
+  // Wait for the API server to be reachable (health check) before connecting socket
+  async function waitForServer(url, attempts = 20, delayMs = 500) {
+    const health = (url.replace(/\/$/, '') + '/api/health')
+    for (let i = 0; i < attempts; i++) {
+      try {
+        const res = await fetch(health, { method: 'GET', timeout: 2000 })
+        if (res.ok) return true
+      } catch (err) {
+        // ignore and retry
+      }
+      await new Promise(r => setTimeout(r, delayMs))
+    }
+    return false
+  }
+
+  const ok = await waitForServer(SERVER_URL, 40, 500)
+  if (!ok) {
+    console.warn('[worker] API server not reachable, will still try socket connect but expect retries')
+  }
 
   // Socket client to the API server so the worker can request the server to emit to user rooms
-  const socket = ClientIO(SERVER_URL, { reconnectionAttempts: 10 })
+  const socket = ClientIO(SERVER_URL, {
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+    transports: ['websocket', 'polling']
+  })
+
   socket.on('connect', () => console.log('[worker] connected to server socket'))
   socket.on('connect_error', (err) => console.warn('[worker] socket connect error', err))
 

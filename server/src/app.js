@@ -24,6 +24,7 @@ import projectsRoutes from './routes/projects.js'
 import communityRoutes from './routes/community.js'
 import dashboardRoutes from './routes/dashboard.js'
 import wellbeingRoutes from './routes/wellbeing.js'
+import botsRoutes from './routes/bots.js'
 
 import { notFound, errorHandler } from './middleware/error.js'
 
@@ -92,6 +93,7 @@ app.use('/api/projects', projectsRoutes)
 app.use('/api/community', communityRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/wellbeing', wellbeingRoutes)
+app.use('/api/bots', botsRoutes)
 
 // Health
 app.get('/api/health', (req, res) => res.json({ ok: true }))

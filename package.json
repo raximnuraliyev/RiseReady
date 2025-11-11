@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-  "dev:all": "concurrently \"npm run dev\" \"npm run dev --prefix server\" \"npm run dev:worker --prefix server\"",
+    "bootstrap": "npm install && npm --prefix server install && npm --prefix bots/discord install",
+  "dev:all": "concurrently \"npm run dev\" \"npm run dev --prefix server\" \"npm run dev:worker --prefix server\" \"npm run dev --prefix bots/discord\"",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",

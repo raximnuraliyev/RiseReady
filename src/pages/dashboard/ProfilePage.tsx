@@ -16,6 +16,7 @@ import {
   Send,
 } from 'lucide-react'
 import { useProfile } from '../../hooks/useProfile'
+import DiscordLinkCard from '../../components/DiscordLinkCard'
 // HIGHLIGHT removed (unused)
 
 type Profile = {
@@ -496,6 +497,9 @@ export default function ProfilePage() {
                     </li>
                   ))}
                 </ul>
+                <div className="mt-6 border-t pt-4">
+                  <DiscordLinkCard onLinked={async () => { await refreshData(); setShowSaved(true); setTimeout(()=>setShowSaved(false),2000) }} />
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
