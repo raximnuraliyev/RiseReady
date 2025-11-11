@@ -37,7 +37,26 @@ if (fs.existsSync(commandsPath)) {
   }
 }
 
-bot.launch().then(() => console.log('Telegram bot started')).catch(err => {
+bot.launch().then(async () => {
+  console.log('Telegram bot started')
+  // Register command list so Telegram clients show available commands
+  try {
+    await bot.telegram.setMyCommands([
+      { command: 'start', description: 'Show help and available commands' },
+      { command: 'link', description: 'Link your RiseReady account using a code' },
+      { command: 'stats', description: 'Show your study stats (sessions, streaks, badges)' },
+      { command: 'focus', description: 'Log a focus session: /focus <minutes>' },
+      { command: 'checkin', description: 'Submit a wellbeing check-in: /checkin <mood>' },
+      { command: 'badges', description: 'List earned badges' },
+      { command: 'internships', description: 'Show latest internships (optionally pass a limit)' },
+      { command: 'leaderboard', description: 'Show top users leaderboard' },
+      { command: 'settings', description: 'View or update bot settings' }
+    ])
+    console.log('Registered Telegram command list')
+  } catch (err) {
+    console.warn('Failed to register Telegram commands', err && err.message)
+  }
+}).catch(err => {
   console.error('Telegram bot failed to start', err)
   process.exit(1)
 })
