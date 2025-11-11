@@ -22,6 +22,8 @@ const UserSchema = new mongoose.Schema({
   discord: { type: String, default: '' },
   // Persistent Discord account identifier for bot linking (Discord snowflake)
   discordId: { type: String, default: '' },
+  // Persistent Telegram account identifier (optional)
+  telegramId: { type: String, default: '' },
   telegram: { type: String, default: '' },
   
   // Progress tracking

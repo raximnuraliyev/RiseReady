@@ -5,16 +5,20 @@ import { CheckIn } from '../models/CheckIn.js'
 import { UserBadge } from '../models/Badge.js'
 import { Internship } from '../models/Internship.js'
 
-// Helper: resolve user by discordId or discord tag (discord field)
-async function resolveUser(discordId, discordTag) {
-  // Try by snowflake first
-  if (discordId) {
-    const user = await User.findOne({ discordId }).exec()
+// Helper: resolve user by discordId/telegramId or by discord tag / telegram username
+async function resolveUser(id, tag) {
+  // Try by id first (could be discordId or telegramId)
+  if (id) {
+    let user = await User.findOne({ discordId: id }).exec()
+    if (user) return user
+    user = await User.findOne({ telegramId: String(id) }).exec()
     if (user) return user
   }
-  // Fallback: try by discord tag (username#1234) when available
-  if (discordTag) {
-    const userByTag = await User.findOne({ discord: discordTag }).exec()
+  // Fallback: try by discord tag (username#1234) or telegram username
+  if (tag) {
+    let userByTag = await User.findOne({ discord: tag }).exec()
+    if (userByTag) return userByTag
+    userByTag = await User.findOne({ telegram: tag }).exec()
     if (userByTag) return userByTag
   }
   return null
@@ -23,8 +27,8 @@ async function resolveUser(discordId, discordTag) {
 // POST /api/bots/discord/link
 // Body: { discordId, linkCode }
 export async function linkDiscordAccount(req, res) {
-  const { discordId, linkCode } = req.body || {}
-  if (!discordId || !linkCode) return res.status(400).json({ error: 'discordId and linkCode required' })
+  const { discordId, telegramId, linkCode } = req.body || {}
+  if ((!discordId && !telegramId) || !linkCode) return res.status(400).json({ error: 'discordId or telegramId and linkCode required' })
 
   try {
     const code = await LinkCode.findOne({ code: linkCode }).exec()
@@ -35,23 +39,34 @@ export async function linkDiscordAccount(req, res) {
     const user = await User.findById(code.userId).exec()
     if (!user) return res.status(404).json({ error: 'User not found for this code' })
 
-    // Prevent duplicate linking: if some other user already has this discordId
-    const existing = await User.findOne({ discordId }).exec()
-    if (existing && existing._id.toString() !== user._id.toString()) {
-      return res.status(400).json({ error: 'This Discord account is already linked to another user' })
+    // If linking a Discord account
+    if (discordId) {
+      const existing = await User.findOne({ discordId }).exec()
+      if (existing && existing._id.toString() !== user._id.toString()) {
+        return res.status(400).json({ error: 'This Discord account is already linked to another user' })
+      }
+      user.discordId = discordId
+      const { discordTag } = req.body || {}
+      if (discordTag) user.discord = discordTag
     }
 
-  // Save the mapping
-  user.discordId = discordId
-  // Accept optional discordTag and persist to user's display field
-  const { discordTag } = req.body || {}
-  if (discordTag) user.discord = discordTag
-  await user.save()
+    // If linking a Telegram account
+    if (telegramId) {
+      const existing = await User.findOne({ telegramId: String(telegramId) }).exec()
+      if (existing && existing._id.toString() !== user._id.toString()) {
+        return res.status(400).json({ error: 'This Telegram account is already linked to another user' })
+      }
+      user.telegramId = String(telegramId)
+      const { telegramUsername } = req.body || {}
+      if (telegramUsername) user.telegram = telegramUsername
+    }
 
-  code.used = true
-  await code.save()
+    await user.save()
 
-  return res.json({ ok: true, userId: user._id.toString(), discordTag: user.discord || null })
+    code.used = true
+    await code.save()
+
+    return res.json({ ok: true, userId: user._id.toString(), discordTag: user.discord || null, telegram: user.telegram || null })
   } catch (err) {
     console.error('linkDiscordAccount error', err)
     return res.status(500).json({ error: 'internal_error' })
@@ -61,10 +76,11 @@ export async function linkDiscordAccount(req, res) {
 // POST /api/bots/discord/focus
 // Body: { discordId, minutes }
 export async function botCreateFocus(req, res) {
-  const { discordId, minutes, discordTag } = req.body || {}
-  if (!discordId || !minutes) return res.status(400).json({ error: 'discordId and minutes required' })
+  const { discordId, telegramId, minutes, discordTag, telegramUsername } = req.body || {}
+  const id = discordId || telegramId
+  if (!id || !minutes) return res.status(400).json({ error: 'discordId or telegramId and minutes required' })
   try {
-    const user = await resolveUser(discordId, discordTag)
+    const user = await resolveUser(id, discordTag || telegramUsername)
     if (!user) return res.status(404).json({ error: 'User not linked' })
 
     const now = new Date()
@@ -101,10 +117,11 @@ export async function botCreateFocus(req, res) {
 // POST /api/bots/discord/checkin
 // Body: { discordId, mood }
 export async function botCheckIn(req, res) {
-  const { discordId, mood, discordTag } = req.body || {}
-  if (!discordId || !mood) return res.status(400).json({ error: 'discordId and mood required' })
+  const { discordId, telegramId, mood, discordTag, telegramUsername } = req.body || {}
+  const id = discordId || telegramId
+  if (!id || !mood) return res.status(400).json({ error: 'discordId or telegramId and mood required' })
   try {
-    const user = await resolveUser(discordId, discordTag)
+    const user = await resolveUser(id, discordTag || telegramUsername)
     if (!user) return res.status(404).json({ error: 'User not linked' })
 
     // Map mood input to allowed enum
@@ -129,10 +146,11 @@ export async function botCheckIn(req, res) {
 
 // GET /api/bots/discord/stats?discordId=...
 export async function botGetStats(req, res) {
-  const { discordId, discordTag } = req.query || {}
-  if (!discordId) return res.status(400).json({ error: 'discordId required' })
+  const { discordId, telegramId, discordTag, telegramUsername } = req.query || {}
+  const id = discordId || telegramId
+  if (!id) return res.status(400).json({ error: 'discordId or telegramId required' })
   try {
-    const user = await resolveUser(discordId, discordTag)
+    const user = await resolveUser(id, discordTag || telegramUsername)
     if (!user) return res.status(404).json({ error: 'User not linked' })
 
     const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7)
@@ -160,10 +178,11 @@ export async function botGetStats(req, res) {
 
 // GET /api/bots/discord/badges?discordId=...
 export async function botGetBadges(req, res) {
-  const { discordId, discordTag } = req.query || {}
-  if (!discordId) return res.status(400).json({ error: 'discordId required' })
+  const { discordId, telegramId, discordTag, telegramUsername } = req.query || {}
+  const id = discordId || telegramId
+  if (!id) return res.status(400).json({ error: 'discordId or telegramId required' })
   try {
-    const user = await resolveUser(discordId, discordTag)
+    const user = await resolveUser(id, discordTag || telegramUsername)
     if (!user) return res.status(404).json({ error: 'User not linked' })
     const badges = await UserBadge.find({ userId: user._id }).sort({ earnedAt: -1 })
     return res.json(badges)
@@ -175,10 +194,11 @@ export async function botGetBadges(req, res) {
 
 // GET /api/bots/discord/internships?discordId=...&limit=5
 export async function botGetInternships(req, res) {
-  const { discordId, discordTag } = req.query || {}
+  const { discordId, telegramId, discordTag, telegramUsername } = req.query || {}
   const limit = Math.min(50, parseInt(req.query.limit || '5'))
   try {
-    const user = discordId ? await resolveUser(discordId, discordTag) : null
+    const id = discordId || telegramId
+    const user = id ? await resolveUser(id, discordTag || telegramUsername) : null
     let query = { isActive: true }
     if (user && user.major) query.skills = { $in: [user.major] }
     const items = await Internship.find(query).sort({ posted: -1 }).limit(limit)
@@ -223,10 +243,11 @@ export async function generateLinkCode(req, res) {
 
 // GET /api/bots/discord/settings?discordId=...
 export async function botGetSettings(req, res) {
-  const { discordId, discordTag } = req.query || {}
-  if (!discordId) return res.status(400).json({ error: 'discordId required' })
+  const { discordId, telegramId, discordTag, telegramUsername } = req.query || {}
+  const id = discordId || telegramId
+  if (!id) return res.status(400).json({ error: 'discordId or telegramId required' })
   try {
-    const user = await resolveUser(discordId, discordTag)
+    const user = await resolveUser(id, discordTag || telegramUsername)
     if (!user) return res.status(404).json({ error: 'User not linked' })
     return res.json(user.settings || {})
   } catch (err) {
@@ -238,10 +259,11 @@ export async function botGetSettings(req, res) {
 // PUT /api/bots/discord/settings
 // Body: { discordId, settings }
 export async function botUpdateSettings(req, res) {
-  const { discordId, settings, discordTag } = req.body || {}
-  if (!discordId || !settings) return res.status(400).json({ error: 'discordId and settings required' })
+  const { discordId, telegramId, settings, discordTag, telegramUsername } = req.body || {}
+  const id = discordId || telegramId
+  if (!id || !settings) return res.status(400).json({ error: 'discordId or telegramId and settings required' })
   try {
-    const user = await resolveUser(discordId, discordTag)
+    const user = await resolveUser(id, discordTag || telegramUsername)
     if (!user) return res.status(404).json({ error: 'User not linked' })
     user.settings = Object.assign(user.settings || {}, settings)
     await user.save()
