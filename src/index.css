@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Brand colors */
+  --color-primary: #003135;
+  --color-secondary: #024950;
+  --color-accent: #0FA4AF;
+  --color-highlight: #964734;
+  --color-accent-light: #AFDDE5;
+  --color-neutral-dark: #333333;
+  --color-neutral-mid: #666666;
+  --color-bg-light: #FAFAFA;
+  --color-surface: #FFFFFF;
+
+  /* Typography */
+  --font-body: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  --font-heading: Poppins, Montserrat, Arial, sans-serif;
+}
+
+@layer base {
+  html, body, #root { 
+    @apply min-h-screen bg-surface text-neutral-dark; 
+  }
+  body { 
+    font-family: var(--font-body); 
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  h1, h2, h3, h4, h5, h6 { 
+    font-family: var(--font-heading);
+    font-weight: 700;
+  }
+  h1 {
+    @apply text-h1-mobile md:text-h1-desktop;
+  }
+  h2 {
+    @apply text-h2-mobile md:text-h2-desktop;
+  }
+}
+
+@layer components {
+  /* Button styles with microinteractions */
+  .btn-primary {
+    @apply px-5 py-3 rounded-md bg-accent text-white font-medium transition-all duration-300;
+    @apply hover:scale-105 hover:shadow-button-hover hover:brightness-110;
+    @apply active:scale-95;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+  .btn-primary:active::before {
+    width: 300px;
+    height: 300px;
+  }
+  .btn-secondary {
+    @apply px-5 py-3 rounded-md border-2 border-primary text-primary font-medium transition-all duration-300;
+    @apply hover:bg-primary hover:text-white hover:scale-105;
+    @apply active:scale-95;
+  }
+  .btn-outline {
+    @apply px-5 py-3 rounded-md border-2 border-accent text-accent font-medium transition-all duration-300;
+    @apply hover:bg-accent hover:text-white hover:scale-105;
+    @apply active:scale-95;
+  }
+  
+  /* Card styles with microinteractions and glassmorphism */
+  .card {
+    @apply rounded-lg p-6 transition-all duration-300;
+    @apply hover:-translate-y-2 hover:shadow-card-hover;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(15, 164, 175, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+  .card:hover {
+    border-color: rgba(15, 164, 175, 0.3);
+    box-shadow: 0 12px 48px rgba(15, 164, 175, 0.15);
+  }
+  
+  /* Icon styles */
+  .icon {
+    @apply w-8 h-8;
+    stroke-width: 2px;
+  }
+  
+  /* Section spacing */
+  .section {
+    @apply py-12 md:py-20;
+  }
+}
+
+@layer utilities {
+  /* Animation utilities */
+  .animate-on-scroll {
+    @apply opacity-0 translate-y-5 transition-all duration-600;
+  }
+  .animate-on-scroll.visible {
+    @apply opacity-100 translate-y-0;
+  }
+  
+  /* Glassmorphism utility */
+  .glass {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  
+  .glass-dark {
+    background: rgba(0, 49, 53, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+/**** Accessibility: honor reduced motion ****/
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/**** Responsive optimizations ****/
+@media (max-width: 768px) {
+  /* Reduce animations on mobile */
+  .section {
+    @apply py-12;
+  }
+  
+  /* Smaller hero on mobile */
+  h1 {
+    font-size: 2rem !important;
+  }
+  
+  h2 {
+    font-size: 1.75rem !important;
+  }
+  
+  /* Optimize glassmorphism for mobile */
+  .glass, .glass-dark {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}

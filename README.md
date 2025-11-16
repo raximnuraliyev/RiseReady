@@ -1,0 +1,225 @@
+﻿# RiseReady
+
+Welcome to RiseReady  a productivity-first learning and career growth web app with a modern React + TypeScript frontend and a Node.js + Express backend. This README walks you through getting started from zero, explains the architecture, environment variables, development scripts (including the `dev:all` concurrent runner), and common troubleshooting tips.
+
+## Table of contents
+
+- Quick start
+- Development (run, build, tests, lint)
+- Environment variables
+- Project structure & architecture
+- Important workflows (Notifications & Worker)
+- Deployment notes
+- Troubleshooting
+- Contributing & license
+
+---
+
+## Quick start
+
+Prerequisites
+
+- Node.js 18+ and npm
+- MongoDB (local or managed) or a connection string
+- Optional: SMTP credentials for email reminders
+
+Clone and install dependencies:
+
+```powershell
+git clone https://github.com/raximnuraliyev/RiseReady.git
+cd RiseReady
+npm install
+```
+
+Create environment files
+
+- Copy root example env (create a file called `.env` in the project root) and set values.
+- Copy server example env: `server/.env` (or create it from `server/.env.example`) and set server-side secrets.
+
+Important: the repo now ignores `.env*` and `server/.env`  keep secrets out of git. Use `.env.example` files to document required keys.
+
+Run development environment (recommended)
+
+From the repository root, run the concurrent dev script (starts the Vite frontend, API server, and dev worker):
+
+```powershell
+npm run dev:all
+```
+
+This runs:
+
+- Frontend (Vite)  hot reload at http://localhost:5173 (port may change if already in use)
+- API server (`server/src/index.js`)  default port configured in `server/.env` (commonly 4000)
+- Worker (nodemon)  `server/src/worker.js` for processing scheduled notifications
+
+Alternatively, run pieces separately:
+
+```powershell
+# start frontend only (project root)
+npm run dev
+
+# start API server (server folder)
+npm run dev --prefix server
+
+# start worker (server folder, dev reload)
+npm run dev:worker --prefix server
+
+# or run worker without reload
+npm run worker --prefix server
+```
+
+Build for production
+
+```powershell
+npm run build
+# then build and run your server with appropriate production env vars
+```
+
+---
+
+## Development: scripts and useful commands
+
+- `npm run dev`  run Vite frontend (root)
+- `npm run dev --prefix server`  run API server with nodemon
+- `npm run dev:worker --prefix server`  run worker with nodemon
+- `npm run worker --prefix server`  run worker without nodemon
+- `npm run dev:all`  concurrent runner for frontend + api + worker (root)
+- `npm run lint`  run ESLint across the project
+
+If you need to run a script in the `server` folder from root, use `--prefix server` as shown above.
+
+---
+
+## Environment variables (summary)
+
+Frontend
+
+- VITE_API_URL  the API base URL used by the frontend, e.g. `http://localhost:4000/api`
+
+Server (`server/.env`)
+
+- `PORT`  API server port (defaults often to 4000)
+- `MONGO_URI`  MongoDB connection string
+- `JWT_SECRET`  JSON Web Token secret
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_SECURE`  SMTP settings for reminder emails (optional)
+- `APP_URL`  public URL of the app (used in emails)
+- `WORKER_SECRET`  a secret shared between worker and server to authorize socket emit requests
+- `WORKER_BATCH_SIZE`  (optional) number of scheduled notifications to claim/process per loop
+
+Example (server/.env)
+
+```env
+PORT=4000
+MONGO_URI=mongodb://localhost:27017/riseready
+JWT_SECRET=change-this-to-a-secure-string
+WORKER_SECRET=some-long-random-string
+APP_URL=http://localhost:5173
+# SMTP_* settings if you want emails
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=you@example.com
+SMTP_PASS=secret
+SMTP_SECURE=false
+```
+
+Note: a `.env.example` file is recommended to list the keys (don't commit actual secrets).
+
+---
+
+## Project structure (high-level)
+
+Root (frontend)
+
+- `src/`  React + TypeScript app (Vite)
+  - `components/`, `pages/`, `hooks/`, `contexts/`, `utils/`
+- `public/`  static assets
+- `package.json`  root scripts and dependencies
+
+Server (backend)  `server/`
+
+- `server/src/index.js`  API server entry
+- `server/src/controllers/`  Express controllers (calendar, notifications, users, etc.)
+- `server/src/models/`  Mongoose models (Notification, CalendarEvent, User, ...)
+- `server/src/worker.js`  standalone worker to process scheduled notifications
+- `server/package.json`  server-only scripts and dependencies
+
+---
+
+## Architecture & how notifications/reminders work
+
+- The frontend schedules calendar events via the API. If the user selects a reminder (e.g. "10 minutes earlier"), the server creates a Notification document whose `createdAt` is set to the reminder delivery time. The Notifications API only returns notifications with `createdAt <= now` so scheduled items remain hidden until due.
+- A worker process scans the DB for due notifications, claims them atomically (to avoid duplicates with multiple workers), marks them as sent, and then emits them to the user via Socket.IO and optionally delivers external reminders (email) via nodemailer.
+- Socket.io is used for realtime delivery. The client uses `src/utils/socket.ts` to connect and subscribe to `notification` events.
+
+Design goals: reliability (DB-backed scheduling and claims), realtime UX, and a simple worker that can run separately from the API.
+
+---
+
+## Important developer notes
+
+- If Vite complains about `socket.io-client` import resolution, install dependencies in the project root:
+
+```powershell
+npm install
+```
+
+- On Windows you may see `LF will be replaced by CRLF` warnings from Git  these are informational. To enforce consistent line endings, add a `.gitattributes` file.
+
+- The repository originally had `server/.env` committed. I've updated `.gitignore` to ignore `.env*` and `server/.env`. If you previously committed secrets, remove them from the repository history or rotate the credentials.
+
+To stop tracking a file and remove it from the repo while keeping it locally:
+
+```powershell
+# from repo root
+git rm --cached server/.env
+git commit -m "stop tracking server/.env"
+git push
+```
+
+If you need to remove a secret from repository history, consider using `git filter-repo` (or `git filter-branch`)  this rewrites history and requires force-push and coordination.
+
+---
+
+## Deployment notes
+
+- Use a process manager (PM2, systemd) or containerize the server and worker. An `ecosystem.config.js` was provided in `server/` for PM2 with separate processes for the API and the worker.
+- Set production environment variables in your host provider (Heroku/Render/PM2 config/containers). Make sure `WORKER_SECRET` is set for worker-authorized socket emits.
+- Use an SMTP provider (SendGrid, Mailgun) for production email reliability.
+
+---
+
+## Troubleshooting (quick)
+
+- Vite import error: "Failed to resolve import 'socket.io-client'"  run `npm install` in project root.
+- Port collision: Vite will try another port automatically. You can set `PORT` or `--port` for Vite.
+- Missing `dev:all` script error: run from repository root (not inside `server/`). The root `package.json` contains `dev:all` which uses `concurrently` to run frontend + server + worker.
+
+---
+
+## Contributing
+
+Contributions welcome. Please open issues for bugs and feature requests. For code changes, create a fork and a pull request with a clear description of the change.
+
+Minimal developer checklist:
+- Install Node and MongoDB
+- Copy `.env.example` -> `.env` and `server/.env.example` -> `server/.env` and fill secrets
+- Run `npm run dev:all`
+
+---
+
+## License
+
+This project doesn't include a license file by default. Add a `LICENSE` file if you plan to publish the project with a specific license.
+
+---
+
+If you'd like, I can:
+- Add `.env.example` files to root and `server/` showing required keys (safe to commit)
+- Add a small `CONTRIBUTING.md` with PR and branch rules
+- Add a short developer quick-start snippet at the top of the README with screenshots or badges
+
+If you want any of these, tell me which and Ill add them next.
+
+---
+
+Happy hacking  go build great things 

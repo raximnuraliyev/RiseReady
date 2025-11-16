@@ -1,0 +1,26 @@
+[
+  {
+    "id": "nf-1",
+    "title": "Frontend Engineer Intern",
+    "organization": "Netflix",
+    "url": "https://jobs.netflix.com/applications/123",
+    "postedAt": "2025-11-08",
+    "source": "Netflix"
+  },
+  {
+    "id": "dc-1",
+    "title": "Community Manager Intern",
+    "organization": "Discord",
+    "url": "https://discord.com/careers/456",
+    "postedAt": "2025-11-07",
+    "source": "Discord"
+  },
+  {
+    "id": "tg-1",
+    "title": "Bot Developer Intern",
+    "organization": "Telegram",
+    "url": "https://t.me/jobs/789",
+    "postedAt": "2025-11-06",
+    "source": "Telegram"
+  }
+]
