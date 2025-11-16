@@ -13,7 +13,6 @@ import {
   Sparkles,
   X
 } from 'lucide-react'
-import DashboardBackground from '../../components/DashboardBackgrounds'
 import { formatDistanceToNow } from 'date-fns'
 
 export type StudyGroup = {
@@ -211,8 +210,7 @@ export default function CommunityPage() {
   const availableGroups = filteredGroups.filter(g => !g.isJoined)
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-[#FFF5F7] via-[#F0F4FF] to-[#FFF9E6] pb-20">
-      <DashboardBackground variant="community" />
+    <div className="min-h-screen bg-gradient-to-br from-[#FFF5F7] via-[#F0F4FF] to-[#FFF9E6] pb-20">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

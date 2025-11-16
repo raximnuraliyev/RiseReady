@@ -6,7 +6,6 @@ import ErrorBoundary from './components/ErrorBoundary'
 import useAuth from './hooks/useAuth'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import AIAssistant from './components/AIAssistant'
 
 // Route-based code splitting for faster initial load
 const HomePage = lazy(() => import('./pages/HomePage'))
@@ -112,7 +111,6 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
-      <AIAssistant />
     </ErrorBoundary>
   )
 }

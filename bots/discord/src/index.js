@@ -64,31 +64,6 @@ if (fs.existsSync(commandsPath)) {
   }
 }
 
-// Optionally auto-register slash commands at startup when CLIENT_ID is provided
-// This saves running the separate deploy script during development.
-const CLIENT_ID = process.env.CLIENT_ID
-const GUILD_ID = process.env.GUILD_ID
-const RestModule = tryRequire('@discordjs/rest')
-const DiscordApiTypes = tryRequire('discord-api-types/v10')
-const Routes = DiscordApiTypes && DiscordApiTypes.Routes
-if (CLIENT_ID && RestModule && Routes) {
-  ;(async () => {
-    try {
-      const rest = new RestModule.REST({ version: '10' }).setToken(DISCORD_TOKEN)
-      const commandData = Array.from(client.commands.values()).filter(c => c.data).map(c => c.data.toJSON())
-      if (GUILD_ID) {
-        await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), { body: commandData })
-        console.log('Registered commands to guild', GUILD_ID)
-      } else {
-        await rest.put(Routes.applicationCommands(CLIENT_ID), { body: commandData })
-        console.log('Registered commands globally')
-      }
-    } catch (err) {
-      console.warn('Failed to auto-register commands:', err && err.message)
-    }
-  })()
-}
-
 client.once('ready', () => {
   console.log(`Discord bot logged in as ${client.user.tag}`);
 });

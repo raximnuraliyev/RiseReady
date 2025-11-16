@@ -4,8 +4,8 @@
   "description": "RiseReady Discord bot (commands + webhook receiver)",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node src/index.js",
+  "start": "node src/index.js",
+  "dev": "node src/index.js",
     "deploy-commands": "node src/deploy-commands.js"
   },
   "author": "RiseReady",
@@ -17,7 +17,6 @@
     "discord-api-types": "^0.37.18",
     "discord.js": "^14.11.0",
     "dotenv": "^16.0.0",
-    "express": "^4.18.2",
-    "riseready": "file:../.."
+    "express": "^4.18.2"
   }
 }

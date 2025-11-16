@@ -7,21 +7,16 @@ import {
   Edit,
   Trash2,
   X,
-  Sparkles,
-  BookOpen,
-  Code,
-  Handshake,
-  Star
+  Sparkles
 } from 'lucide-react'
 import { useSkills } from '../../hooks/useSkills'
 import { useUserLevel } from '../../hooks/useUserLevel'
-import DashboardBackground from '../../components/DashboardBackgrounds'
 
-const categoryIcons: Record<string, JSX.Element> = {
-  'Academic': <BookOpen className="w-5 h-5" />,
-  'Technical': <Code className="w-5 h-5" />,
-  'Soft Skills': <Handshake className="w-5 h-5" />,
-  'Other': <Star className="w-5 h-5" />
+const categoryIcons: Record<string, string> = {
+  'Academic': '📚',
+  'Technical': '💻',
+  'Soft Skills': '🤝',
+  'Other': '⭐'
 }
 
 const categoryColors: Record<string, string> = {
@@ -84,8 +79,7 @@ export default function SkillsPage() {
   }
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-[#FAFAFA] to-[#F0F4FF] pb-20">
-      <DashboardBackground variant="skills" />
+    <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] to-[#F0F4FF] pb-20">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -145,10 +139,8 @@ export default function SkillsPage() {
 
         {/* Skills Grid */}
         {skills.length === 0 ? (
-        <div className="bg-white rounded-3xl shadow-lg p-12 text-center border border-gray-100">
-            <div className="mb-4">
-              <TrendingUp className="w-16 h-16 mx-auto text-[#37A6FF]" />
-            </div>
+          <div className="bg-white rounded-3xl shadow-lg p-12 text-center border border-gray-100">
+            <div className="text-6xl mb-4">🎯</div>
             <h3 className="text-2xl font-bold text-[#1F4E79] mb-2">No skills yet!</h3>
             <p className="text-gray-600 mb-6">Start tracking your skills to level up your abilities</p>
             <button
@@ -302,10 +294,10 @@ export default function SkillsPage() {
                     }
                     className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-[#37A6FF] focus:outline-none"
                   >
-                    <option value="Academic">Academic</option>
-                    <option value="Technical">Technical</option>
-                    <option value="Soft Skills">Soft Skills</option>
-                    <option value="Other">Other</option>
+                    <option value="Academic">📚 Academic</option>
+                    <option value="Technical">💻 Technical</option>
+                    <option value="Soft Skills">🤝 Soft Skills</option>
+                    <option value="Other">⭐ Other</option>
                   </select>
                 </div>
 

@@ -1,15 +1,9 @@
 import dotenv from 'dotenv'
-import path from 'path'
-import { fileURLToPath } from 'url'
 import app from './app.js'
 import { connectDB } from './config/db.js'
 import mongoose from 'mongoose'
 
-// Get directory path
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
-// Load environment variables from server directory
-dotenv.config({ path: path.join(__dirname, '..', '.env') })
+dotenv.config()
 
 const PORT = process.env.PORT || 4000
 

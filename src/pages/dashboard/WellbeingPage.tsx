@@ -8,25 +8,17 @@ import {
   Dumbbell,
   X,
   CheckCircle2,
-  Smile,
-  Meh,
-  Frown,
-  Globe,
-  BookOpen,
-  Moon,
-  Zap
 } from 'lucide-react'
 import { format } from 'date-fns'
-import DashboardBackground from '../../components/DashboardBackgrounds'
 import { useWellbeing } from '../../hooks/useWellbeing'
 import BreathingExercise from '../../components/wellbeing/BreathingExercise'
 
 const MOOD_OPTIONS = [
-  { id: 'great', icon: <Smile className="w-6 h-6" />, label: 'Great', color: '#10B981' },
-  { id: 'good', icon: <Smile className="w-6 h-6" />, label: 'Good', color: '#34D399' },
-  { id: 'okay', icon: <Meh className="w-6 h-6" />, label: 'Okay', color: '#FBBF24' },
-  { id: 'bad', icon: <Frown className="w-6 h-6" />, label: 'Bad', color: '#FB923C' },
-  { id: 'terrible', icon: <Frown className="w-6 h-6" />, label: 'Terrible', color: '#EF4444' },
+  { id: 'great', emoji: '😊', label: 'Great', color: '#10B981' },
+  { id: 'good', emoji: '🙂', label: 'Good', color: '#34D399' },
+  { id: 'okay', emoji: '😐', label: 'Okay', color: '#FBBF24' },
+  { id: 'bad', emoji: '😟', label: 'Bad', color: '#FB923C' },
+  { id: 'terrible', emoji: '😢', label: 'Terrible', color: '#EF4444' },
 ]
 
 export default function WellbeingPage() {
@@ -86,11 +78,10 @@ export default function WellbeingPage() {
     )
   }
 
-  const moodIcon = bestDay.mood ? MOOD_OPTIONS.find(m => m.id === bestDay.mood)?.icon : <BookOpen className="w-6 h-6" />
+  const moodEmoji = bestDay.mood ? MOOD_OPTIONS.find(m => m.id === bestDay.mood)?.emoji : '📅'
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-[#FAFAFA] to-[#FFF0F5] pb-20">
-      <DashboardBackground variant="wellbeing" />
+    <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] to-[#FFF0F5] pb-20">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -101,7 +92,7 @@ export default function WellbeingPage() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-[#1F4E79]">Well-being Center</h1>
-                <p className="text-sm text-gray-600 mt-0.5">Take care of yourself</p>
+                <p className="text-sm text-gray-600 mt-0.5">Take care of yourself 💕</p>
               </div>
             </div>
             {!hasCheckedInToday && (
@@ -161,10 +152,9 @@ export default function WellbeingPage() {
               </div>
               <div className="text-3xl font-bold mb-1">
                 {bestDay.bestDay ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="opacity-90">{moodIcon}</span>
-                    <span>{format(new Date(bestDay.bestDay), 'EEE')}</span>
-                  </div>
+                  <>
+                    {moodEmoji} {format(new Date(bestDay.bestDay), 'EEE')}
+                  </>
                 ) : (
                   'No data yet'
                 )}
@@ -223,9 +213,7 @@ export default function WellbeingPage() {
             
             {checkIns.length === 0 ? (
               <div className="text-center py-12">
-                <div className="mb-4">
-                  <BookOpen className="w-16 h-16 mx-auto text-[#8B5CF6]" />
-                </div>
+                <div className="text-6xl mb-4">💭</div>
                 <h3 className="text-lg font-bold text-[#1F4E79] mb-2">No check-ins yet</h3>
                 <p className="text-gray-600 mb-6">Start tracking your wellbeing today</p>
                 <button
@@ -244,7 +232,7 @@ export default function WellbeingPage() {
                       key={checkIn._id}
                       className="flex items-center gap-4 p-4 rounded-xl border-2 border-gray-100"
                     >
-                      <div className="text-3xl">{MOOD_OPTIONS.find(m => m.id === checkIn.mood)?.icon}</div>
+                      <div className="text-3xl">{moodOption?.emoji}</div>
                       <div className="flex-1">
                         <div className="font-semibold text-[#1F4E79]">
                           {format(new Date(checkIn.date), 'EEEE, MMM d')}
@@ -352,16 +340,16 @@ export default function WellbeingPage() {
             <h2 className="text-xl font-bold text-[#1F4E79] mb-4">Mental Health Articles</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[
-                { title: 'Managing Exam Stress', icon: <BookOpen className="w-8 h-8" />, color: '#3B82F6' },
-                { title: 'Healthy Sleep Habits', icon: <Moon className="w-8 h-8" />, color: '#8B5CF6' },
-                { title: 'Building Resilience', icon: <Dumbbell className="w-8 h-8" />, color: '#10B981' },
+              {[
+                { title: 'Managing Exam Stress', emoji: '📚', color: '#3B82F6' },
+                { title: 'Healthy Sleep Habits', emoji: '😴', color: '#8B5CF6' },
+                { title: 'Building Resilience', emoji: '💪', color: '#10B981' },
               ].map((article, i) => (
                 <div
                   key={i}
                   className="p-4 rounded-xl border-2 border-gray-100 hover:border-gray-200 hover:shadow-md transition-all cursor-pointer"
                 >
-                  <div className="mb-2">{article.icon}</div>
+                  <div className="text-4xl mb-2">{article.emoji}</div>
                   <h3 className="font-semibold text-[#1F4E79]">{article.title}</h3>
                   <p className="text-sm text-gray-600 mt-1">Click to read more</p>
                 </div>

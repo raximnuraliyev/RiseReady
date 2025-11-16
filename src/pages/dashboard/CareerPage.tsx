@@ -19,7 +19,6 @@ import {
 import { useCareer } from '../../hooks/useCareer'
 import { useUserLevel } from '../../hooks/useUserLevel'
 import { useDashboardContext } from '../../contexts/DashboardContext'
-import DashboardBackground from '../../components/DashboardBackgrounds'
 
 export default function CareerPage() {
   const { mentors, resources, tasks, loading: careerLoading, createTask, toggleTask, deleteTask } = useCareer()
@@ -73,8 +72,7 @@ export default function CareerPage() {
   }
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-[#F0F4FF] via-[#E8F4F8] to-[#FFF5F7] pb-20">
-      <DashboardBackground variant="career" />
+    <div className="min-h-screen bg-gradient-to-br from-[#F0F4FF] via-[#E8F4F8] to-[#FFF5F7] pb-20">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -105,7 +103,7 @@ export default function CareerPage() {
         >
           <div className="flex items-center justify-between mb-6">
             <div>
-              <div className="text-sm text-white/80 mb-1">Your Career Journey</div>
+              <div className="text-sm text-white/80 mb-1">🎯 Your Career Journey</div>
               <h2 className="text-3xl font-bold">Career Tasks Progress</h2>
             </div>
             <button

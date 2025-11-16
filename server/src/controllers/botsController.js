@@ -273,31 +273,3 @@ export async function botUpdateSettings(req, res) {
     return res.status(500).json({ error: 'internal_error' })
   }
 }
-
-// POST /api/bots/discord/logout
-// Body: { discordId } or { telegramId }
-export async function botLogout(req, res) {
-  const { discordId, telegramId, discordTag, telegramUsername } = req.body || {}
-  const id = discordId || telegramId
-  if (!id) return res.status(400).json({ error: 'discordId or telegramId required' })
-  try {
-    const user = await resolveUser(id, discordTag || telegramUsername)
-    if (!user) return res.status(404).json({ error: 'User not linked' })
-
-    // Unlink the bot account
-    if (discordId) {
-      user.discordId = undefined
-      user.discord = undefined
-    }
-    if (telegramId) {
-      user.telegramId = undefined
-      user.telegram = undefined
-    }
-
-    await user.save()
-    return res.json({ ok: true, message: 'Successfully logged out' })
-  } catch (err) {
-    console.error('botLogout error', err)
-    return res.status(500).json({ error: 'internal_error' })
-  }
-}

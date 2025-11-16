@@ -21,7 +21,6 @@ import {
   Lightbulb
 } from 'lucide-react'
 import { format } from 'date-fns'
-import DashboardBackground from '../../components/DashboardBackgrounds'
 import { useBudget } from '../../hooks/useBudget'
 
 const CATEGORIES = {
@@ -45,11 +44,11 @@ const CATEGORIES = {
 }
 
 const budgetTips = [
-  'Track every expense, no matter how small. Small purchases add up!',
-  'Try the 50/30/20 rule: 50% needs, 30% wants, 20% savings',
-  'Buy used textbooks or rent them to save hundreds per semester',
-  'Meal prep on weekends to save money and time during busy weeks',
-  'Consider a student transit pass for unlimited monthly travel',
+  "💡 Track every expense, no matter how small. Small purchases add up!",
+  "🎯 Use the 50/30/20 rule: 50% needs, 30% wants, 20% savings",
+  "📚 Buy used textbooks or rent them to save hundreds per semester",
+  "🍳 Meal prep on weekends to save money and time during busy weeks",
+  "🚌 Consider a student transit pass for unlimited monthly travel",
 ]
 
 export default function BudgetPage() {
@@ -114,8 +113,7 @@ export default function BudgetPage() {
   }
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-[#FAFAFA] to-[#F0F8FF] pb-20">
-      <DashboardBackground variant="budget" />
+    <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] to-[#F0F8FF] pb-20">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -126,7 +124,7 @@ export default function BudgetPage() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-[#1F4E79]">Budget Manager</h1>
-                <p className="text-sm text-gray-600 mt-0.5">Take control of your finances</p>
+                <p className="text-sm text-gray-600 mt-0.5">Take control of your finances 💰</p>
               </div>
             </div>
             <button
@@ -254,9 +252,7 @@ export default function BudgetPage() {
 
           {items.length === 0 ? (
             <div className="text-center py-12">
-              <div className="mb-4">
-                <PiggyBank className="w-16 h-16 mx-auto text-[#10B981]" />
-              </div>
+              <div className="text-6xl mb-4">💸</div>
               <h3 className="text-xl font-bold text-[#1F4E79] mb-2">No transactions yet</h3>
               <p className="text-gray-600 mb-6">Start tracking your income and expenses</p>
               <button

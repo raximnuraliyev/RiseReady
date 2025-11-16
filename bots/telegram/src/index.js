@@ -50,8 +50,7 @@ bot.launch().then(async () => {
       { command: 'badges', description: 'List earned badges' },
       { command: 'internships', description: 'Show latest internships (optionally pass a limit)' },
       { command: 'leaderboard', description: 'Show top users leaderboard' },
-      { command: 'settings', description: 'View or update bot settings' },
-      { command: 'logout', description: 'Logout from your RiseReady account' }
+      { command: 'settings', description: 'View or update bot settings' }
     ])
     console.log('Registered Telegram command list')
   } catch (err) {

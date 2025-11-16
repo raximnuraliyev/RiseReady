@@ -6,7 +6,6 @@ import { useDashboardContext } from '../../contexts/DashboardContext';
 import { useUserLevel } from '../../hooks/useUserLevel';
 import { format } from 'date-fns';
 import LevelModal from '../../components/dashboard/LevelModal';
-import DashboardBackground from '../../components/DashboardBackgrounds'
 
 const TIMER_PRESETS = [15, 25, 45, 60];
 const SESSION_TYPES = ['Study', 'Work', 'Project', 'Reading'];
@@ -56,11 +55,11 @@ export default function FocusPage() {
       await refreshStats();
 
       if ('Notification' in window && Notification.permission === 'granted') {
-          new Notification('Focus Session Complete', {
-            body: `Great work! You completed a ${duration} minute ${sessionType} session.`,
-            icon: '/logo.svg'
-          });
-        }
+        new Notification('Focus Session Complete! 🎉', {
+          body: `Great work! You completed a ${duration} minute ${sessionType} session.`,
+          icon: '/logo.svg'
+        });
+      }
     }
   }, [startTime, duration, sessionType, createSession, refreshStats]);
 
@@ -131,8 +130,7 @@ export default function FocusPage() {
   }
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-[#FAFAFA] to-[#F0F0FF] pb-20">
-      <DashboardBackground variant="focus" />
+    <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] to-[#F0F0FF] pb-20">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -141,9 +139,9 @@ export default function FocusPage() {
               <div className="w-12 h-12 bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] rounded-2xl flex items-center justify-center shadow-lg">
                 <Target className="w-6 h-6 text-white" />
               </div>
-                <div>
+              <div>
                 <h1 className="text-3xl font-bold text-[#1F4E79]">Focus Zone</h1>
-                <p className="text-sm text-gray-600 mt-0.5">Stay focused and productive</p>
+                <p className="text-sm text-gray-600 mt-0.5">Stay focused and productive 🎯</p>
               </div>
             </div>
             <button
@@ -176,7 +174,7 @@ export default function FocusPage() {
                 <Flame className="w-8 h-8" />
               </div>
               <div className="text-4xl font-bold mb-1">{streak.streak} days</div>
-              <div className="text-white/80 text-sm">Keep the fire burning!</div>
+              <div className="text-white/80 text-sm">Keep the fire burning! 🔥</div>
             </div>
           </motion.div>
 
@@ -187,7 +185,7 @@ export default function FocusPage() {
             transition={{ delay: 0.1 }}
             className="bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] rounded-3xl shadow-lg p-6 text-white relative overflow-hidden"
           >
-              <div className="relative z-10">
+            <div className="relative z-10">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-white/80 text-sm font-medium">This Week</span>
                 <Clock className="w-8 h-8" />
@@ -210,7 +208,7 @@ export default function FocusPage() {
                 <Award className="w-8 h-8" />
               </div>
               <div className="text-4xl font-bold mb-1">{badges.length}</div>
-              <div className="text-white/80 text-sm">Nice work!</div>
+              <div className="text-white/80 text-sm">Nice work! ⭐</div>
             </div>
           </motion.div>
         </div>
@@ -339,9 +337,7 @@ export default function FocusPage() {
               
               {badges.length === 0 ? (
                 <div className="text-center py-6">
-                    <div className="mb-2">
-                      <Award className="w-10 h-10 text-amber-400 mx-auto" />
-                    </div>
+                  <div className="text-4xl mb-2">🏆</div>
                   <p className="text-sm text-gray-600">Complete sessions to earn badges!</p>
                 </div>
               ) : (
@@ -351,9 +347,7 @@ export default function FocusPage() {
                       key={badge._id}
                       className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-[#FFD700]/10 to-[#FFA500]/10 border border-[#FFD700]/20"
                     >
-                      <div>
-                        <Award className="w-6 h-6 text-amber-400" />
-                      </div>
+                      <div className="text-2xl">🏆</div>
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-[#1F4E79] text-sm">{badge.badgeName}</div>
                         <div className="text-xs text-gray-500">
@@ -379,9 +373,7 @@ export default function FocusPage() {
                   <h3 className="text-lg font-bold text-[#1F4E79]">Latest Achievement</h3>
                 </div>
                 <div className="text-center">
-                  <div className="text-5xl mb-3">
-                    <Zap className="w-12 h-12 text-[#FFA500] mx-auto" />
-                  </div>
+                  <div className="text-5xl mb-3">🎉</div>
                   <div className="font-bold text-[#1F4E79] mb-1">{badges[0].badgeName}</div>
                   <div className="text-sm text-gray-600">
                     Earned {format(new Date(badges[0].earnedAt), 'MMM d')}
@@ -403,9 +395,7 @@ export default function FocusPage() {
           
           {sessions.length === 0 ? (
             <div className="text-center py-12">
-              <div className="mb-4">
-                <Clock className="w-16 h-16 mx-auto text-[#8B5CF6]" />
-              </div>
+              <div className="text-6xl mb-4">⏰</div>
               <h3 className="text-lg font-bold text-[#1F4E79] mb-2">No sessions yet</h3>
               <p className="text-gray-600">Start your first focus session above!</p>
             </div>

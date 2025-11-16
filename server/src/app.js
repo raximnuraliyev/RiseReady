@@ -4,14 +4,9 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import rateLimit from 'express-rate-limit'
 import dotenv from 'dotenv'
-import path from 'path'
-import { fileURLToPath } from 'url'
 
-// Get directory path
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
-// Load environment variables from server directory
-dotenv.config({ path: path.join(__dirname, '..', '.env') })
+// Load environment variables
+dotenv.config()
 
 import authRoutes from './routes/auth.js'
 import userRoutes from './routes/users.js'
@@ -31,7 +26,6 @@ import dashboardRoutes from './routes/dashboard.js'
 import wellbeingRoutes from './routes/wellbeing.js'
 import botsRoutes from './routes/bots.js'
 import telegramRoutes from './routes/telegram.js'
-import aiRoutes from './routes/ai.js'
 
 import { notFound, errorHandler } from './middleware/error.js'
 
@@ -102,7 +96,6 @@ app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/wellbeing', wellbeingRoutes)
 app.use('/api/bots', botsRoutes)
 app.use('/api/bots', telegramRoutes)
-app.use('/api/ai', aiRoutes)
 
 // Health
 app.get('/api/health', (req, res) => res.json({ ok: true }))

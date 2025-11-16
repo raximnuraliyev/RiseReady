@@ -20,8 +20,6 @@ export type CalendarEvent = {
 
 type ViewType = 'week' | 'month' | 'day'
 
-import DashboardBackground from '../../components/DashboardBackgrounds'
-
 export default function CalendarPage() {
   const [view, setView] = useState<ViewType>('week')
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -42,17 +40,16 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="min-h-screen relative bg-[#FAFAFA]">
-      <DashboardBackground variant="calendar" />
+    <div className="min-h-screen bg-[#FAFAFA]">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-3">
-                  <svg className="w-8 h-8 text-[#37A6FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <svg className="w-8 h-8 text-[#37A6FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
                 <h1 className="text-2xl font-bold text-[#1F4E79]">Calendar</h1>
               </div>
             </div>
