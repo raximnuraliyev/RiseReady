@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import AnimatedGradientText from '../../components/AnimatedGradientText'
+import { DashboardBackground } from '../../components/DashboardBackgrounds'
 import {
   Target,
   HeartPulse,
@@ -15,14 +18,16 @@ import ApiClient from '../../utils/apiClient'
 import ErrorBoundary from '../../components/ErrorBoundary'
 
 // Helper function to safely access nested properties
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const safeGet = (obj: any, path: string[], defaultValue: any = 0): any => {
   try {
-    return path.reduce((curr, key) => (curr && curr[key] !== undefined ? curr[key] : defaultValue), obj)
+    return path.reduce((curr: any, key: string) => (curr && curr[key] !== undefined ? curr[key] : defaultValue), obj)
   } catch (e) {
     console.error(`Error accessing path ${path.join('.')}:`, e)
     return defaultValue
   }
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 const PRIMARY = '#1F4E79'
 const SECONDARY = '#37A6FF'
@@ -95,7 +100,38 @@ const DashboardContent: React.FC = () => {
             completed: safeGet(careerData, ['completed'], 0)
           }
         })
-        setReminders(Array.isArray(reminderData) ? reminderData : [])
+        // Normalize reminders - API can return an array or an object with nested lists
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        const normalizeReminders = (raw: unknown): Reminder[] => {
+          if (!raw) return []
+          const asAny = raw as Record<string, any>
+
+          // If already array of reminders
+          if (Array.isArray(asAny)) {
+            return asAny.map((r: Record<string, any>) => ({
+              id: String(r.id ?? r._id ?? `${r.title}_${r.time}`),
+              title: r.title ?? r.name ?? r.summary ?? 'Untitled',
+              time: r.time ?? r.when ?? r.date ?? (r.datetime ? String(r.datetime) : ''),
+              type: r.type === 'calendar' || r.type === 'task' ? r.type : (r.calendar ? 'calendar' : 'task')
+            }))
+          }
+
+          // If object with data/results/items keys
+          const list = asAny.data ?? asAny.results ?? asAny.items ?? asAny.reminders ?? []
+          if (Array.isArray(list)) {
+            return (list as Record<string, any>[]).map((r) => ({
+              id: String(r.id ?? r._id ?? `${r.title}_${r.time}`),
+              title: r.title ?? r.name ?? r.summary ?? 'Untitled',
+              time: r.time ?? r.when ?? r.date ?? (r.datetime ? String(r.datetime) : ''),
+              type: r.type === 'calendar' || r.type === 'task' ? r.type : (r.calendar ? 'calendar' : 'task')
+            }))
+          }
+
+          return []
+        }
+        /* eslint-enable @typescript-eslint/no-explicit-any */
+
+        setReminders(normalizeReminders(reminderData))
       } catch (err) {
         console.error('Failed to fetch dashboard data:', err)
         setError('Failed to load dashboard data. Please try refreshing the page.')
@@ -165,86 +201,124 @@ const DashboardContent: React.FC = () => {
     }
   ]
 
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 8 },
+    enter: (i = 1) => ({ opacity: 1, y: 0, transition: { delay: 0.06 * i, duration: 0.45, ease: 'easeOut' } }),
+  }
+
   return (
-    <div className="p-6 space-y-6">
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statsCards.map((card, index) => (
-          <div
-            key={index}
-            onClick={() => navigate(card.path)}
-            className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer"
-          >
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-full" style={{ backgroundColor: `${card.color}20` }}>
-                {React.cloneElement(card.icon, { style: { color: card.color } })}
-              </div>
-              <h3 className="font-semibold text-lg">{card.title}</h3>
-            </div>
-            <p className="text-2xl font-bold" style={{ color: card.color }}>
-              {card.value}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Link
-          to="/dashboard/focus"
-          className="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <Target className="w-5 h-5" />
-            <h3 className="font-semibold">Start Focus Session</h3>
-          </div>
-          <p className="text-sm text-gray-600">Begin a new focused work session</p>
-        </Link>
-        
-        <Link
-          to="/dashboard/calendar"
-          className="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <CalendarDays className="w-5 h-5" />
-            <h3 className="font-semibold">View Calendar</h3>
-          </div>
-          <p className="text-sm text-gray-600">Check upcoming events and deadlines</p>
-        </Link>
-        
-        <Link
-          to="/dashboard/community"
-          className="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <Users className="w-5 h-5" />
-            <h3 className="font-semibold">Join Community</h3>
-          </div>
-          <p className="text-sm text-gray-600">Connect with other learners</p>
-        </Link>
-      </div>
-
-      {/* Recent Activity */}
-      {reminders.length > 0 && (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-          <div className="space-y-4">
-            {reminders.map((reminder) => (
-              <div key={reminder.id} className="flex items-center gap-3">
-                {reminder.type === 'calendar' ? (
-                  <CalendarDays className="w-5 h-5 text-primary" />
-                ) : (
-                  <CheckCircle2 className="w-5 h-5 text-green-500" />
-                )}
-                <div>
-                  <p className="font-medium">{reminder.title}</p>
-                  <p className="text-sm text-gray-600">{reminder.time}</p>
-                </div>
-              </div>
-            ))}
+    <div className="relative p-6">
+      <DashboardBackground variant="overview" />
+      <div className="relative space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <AnimatedGradientText className="text-2xl md:text-3xl font-bold">Overview</AnimatedGradientText>
+            <p className="text-sm text-gray-500">A snapshot of your activity — stay focused, healthy and growing.</p>
           </div>
         </div>
-      )}
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {statsCards.map((card, index) => (
+            <motion.button
+              type="button"
+              key={index}
+              onClick={() => navigate(card.path)}
+              className="bg-white p-5 rounded-xl shadow-md cursor-pointer border border-transparent hover:shadow-lg text-left"
+              whileHover={{ y: -6 }}
+              initial="hidden"
+              animate="enter"
+              custom={index}
+              variants={sectionVariants}
+            >
+              <div className="flex items-start gap-4 mb-3">
+                <div className="flex-none w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: `${card.color}15` }}>
+                  {React.cloneElement(card.icon, { style: { color: card.color } })}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-sm text-gray-700">{card.title}</h3>
+                  <p className="text-xl font-bold mt-1" style={{ color: card.color }}>{card.value}</p>
+                </div>
+              </div>
+              <div className="text-xs text-gray-400">Click to view details</div>
+            </motion.button>
+          ))}
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <Link
+            to="/dashboard/focus"
+            className="p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow flex items-start gap-3"
+          >
+            <div className="p-3 rounded-lg bg-primary/5">
+              <Target className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Start Focus Session</h3>
+              <p className="text-sm text-gray-600">Begin a new focused work session</p>
+            </div>
+          </Link>
+
+          <Link
+            to="/dashboard/calendar"
+            className="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <CalendarDays className="w-5 h-5" />
+              <h3 className="font-semibold">View Calendar</h3>
+            </div>
+            <p className="text-sm text-gray-600">Check upcoming events and deadlines</p>
+          </Link>
+
+          <Link
+            to="/dashboard/community"
+            className="p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="w-5 h-5" />
+              <h3 className="font-semibold">Join Community</h3>
+            </div>
+            <p className="text-sm text-gray-600">Connect with other learners</p>
+          </Link>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="mt-6">
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Recent Activity</h2>
+              <Link to="/dashboard/notifications" className="text-sm text-primary hover:underline">View all</Link>
+            </div>
+
+            {reminders.length > 0 ? (
+              <div className="space-y-4">
+                {reminders.map((reminder, idx) => (
+                  <motion.div key={reminder.id} className="flex items-center gap-3 p-3 rounded-md hover:bg-gray-50 transition" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0, transition: { delay: idx * 0.04 } }}>
+                    <div className="flex-none w-10 h-10 rounded-lg flex items-center justify-center bg-gray-100">
+                      {reminder.type === 'calendar' ? (
+                        <CalendarDays className="w-5 h-5 text-primary" />
+                      ) : (
+                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-sm text-gray-800">{reminder.title}</p>
+                      <p className="text-xs text-gray-500">{reminder.time}</p>
+                    </div>
+                    <div className="text-xs text-gray-400 capitalize">{reminder.type}</div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No recent activity — you’re all caught up!</p>
+                <Link to="/dashboard/calendar" className="mt-3 inline-block px-4 py-2 bg-primary text-white rounded-md">Add an event</Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

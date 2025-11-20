@@ -11,6 +11,7 @@ dotenv.config()
 import authRoutes from './routes/auth.js'
 import userRoutes from './routes/users.js'
 import opportunitiesRoutes from './routes/opportunities.js'
+import aiRoutes from './routes/ai.js'
 import internshipRoutes from './routes/internships.js'
 import calendarRoutes from './routes/calendar.js'
 import notificationRoutes from './routes/notifications.js'
@@ -85,6 +86,7 @@ app.use('/api/internships', internshipRoutes)
 app.use('/api/calendar', calendarRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/skills', skillsRoutes)
+app.use('/api/ai', aiRoutes)
 app.use('/api/budget', budgetRoutes)
 app.use('/api/checkins', checkInsRoutes)
 app.use('/api/focus', focusRoutes)

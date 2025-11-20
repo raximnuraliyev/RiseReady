@@ -160,10 +160,10 @@ Secure, flexible permission system:
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                      Client (React + Vite)                      │
-│                                                                   │
+│                                                                 │
 │  - UI Components with Animations                                │
-│  - Real-time Socket.IO Connection                              │
-│  - Local State Management with Context API                     │
+│  - Real-time Socket.IO Connection                               │
+│  - Local State Management with Context API                      │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
                     HTTP REST API
@@ -171,29 +171,29 @@ Secure, flexible permission system:
                            │
 ┌──────────────────────────▼──────────────────────────────────────┐
 │                  Backend (Express + Node.js)                    │
-│                                                                   │
-│  ┌────────────────────────────────────────────────────────┐    │
-│  │ API Routes & Controllers                               │    │
-│  │ - Authentication (JWT)                                 │    │
-│  │ - User Management                                      │    │
-│  │ - Internship Finder                                    │    │
-│  │ - Notifications                                        │    │
-│  └────────────────────────────────────────────────────────┘    │
-│                           │                                      │
-│  ┌────────────────────────▼──────────────────────────────┐    │
-│  │ Background Worker Process                              │    │
-│  │ - Scans for due notifications                          │    │
-│  │ - Processes reminders (email, Socket.IO)              │    │
-│  │ - Atomic claims to prevent duplicates                 │    │
-│  └────────────────────────────────────────────────────────┘    │
+│                                                                 │
+│  ┌────────────────────────────────────────────────────────┐     │
+│  │ API Routes & Controllers                               │     │
+│  │ - Authentication (JWT)                                 │     │
+│  │ - User Management                                      │     │
+│  │ - Internship Finder                                    │     │
+│  │ - Notifications                                        │     │
+│  └────────────────────────────────────────────────────────┘     │
+│                           │                                     │
+│  ┌────────────────────────▼──────────────────────────────┐      │
+│  │ Background Worker Process                             │      │
+│  │ - Scans for due notifications                         │      │
+│  │ - Processes reminders (email, Socket.IO)              │      │
+│  │ - Atomic claims to prevent duplicates                 │      │
+│  └───────────────────────────────────────────────────────┘      │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
             Mongoose ODM & Database Queries
                            │
 ┌──────────────────────────▼──────────────────────────────────────┐
-│                    MongoDB Database                              │
-│                                                                   │
-│  Collections:                                                    │
+│                    MongoDB Database                             │
+│                                                                 │
+│  Collections:                                                   │
 │  - Users (profiles, credentials)                                │
 │  - Notifications (scheduled reminders)                          │
 │  - Internships (cached opportunities)                           │

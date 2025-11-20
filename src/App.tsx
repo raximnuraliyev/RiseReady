@@ -4,6 +4,9 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import ErrorBoundary from './components/ErrorBoundary'
 import useAuth from './hooks/useAuth'
+import AnimatedBackground from './components/AnimatedBackground'
+import AIAssistant from './components/AIAssistant'
+import { useAIAssistantContext } from './hooks/useAIAssistant'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -47,6 +50,7 @@ const LoadingSpinner = () => (
 
 function App() {
   const { isAuthenticated, loading } = useAuth()
+  const pageContext = useAIAssistantContext()
   
   if (loading) {
     return <LoadingSpinner />
@@ -55,6 +59,7 @@ function App() {
   const PublicLayout = ({ children }: { children: React.ReactNode }) => (
     <>
       <Header />
+      <AnimatedBackground />
       {children}
       <Footer />
     </>
@@ -111,6 +116,8 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
+      {/* AI Assistant floating orb, mounted globally so it appears on every page */}
+      <AIAssistant pageContext={pageContext} />
     </ErrorBoundary>
   )
 }
