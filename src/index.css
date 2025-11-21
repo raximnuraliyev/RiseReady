@@ -9,20 +9,33 @@
   --color-accent: #0FA4AF;
   --color-highlight: #964734;
   --color-accent-light: #AFDDE5;
-  --color-neutral-dark: #333333;
-  --color-neutral-mid: #666666;
-  --color-bg-light: #FAFAFA;
-  --color-surface: #FFFFFF;
+  --color-neutral-dark: #1f2937;
+  --color-neutral-mid: #6b7280;
+  --color-bg-light: #f3f4f6;
+  --color-surface: #ffffff;
 
   /* Typography */
   --font-body: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
   --font-heading: Poppins, Montserrat, Arial, sans-serif;
 }
 
+html.dark {
+  --color-neutral-dark: #e5e7eb;
+  --color-neutral-mid: #9ca3af;
+  --color-bg-light: #1f2937;
+  --color-surface: #111827;
+  color-scheme: dark;
+}
+
 @layer base {
   html, body, #root { 
-    @apply min-h-screen bg-surface text-neutral-dark; 
+    @apply min-h-screen bg-white text-gray-900 transition-colors duration-300;
   }
+  
+  html.dark, html.dark body, html.dark #root {
+    @apply bg-gray-950 text-gray-100;
+  }
+  
   body { 
     font-family: var(--font-body); 
     font-size: 16px;
@@ -78,16 +91,25 @@
   
   /* Card styles with microinteractions and glassmorphism */
   .card {
-    @apply rounded-lg p-6 transition-all duration-300;
-    @apply hover:-translate-y-2 hover:shadow-card-hover;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(15, 164, 175, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    @apply rounded-xl p-6 transition-all duration-300;
+    @apply hover:-translate-y-2 hover:shadow-lg;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
   }
   .card:hover {
-    border-color: rgba(15, 164, 175, 0.3);
-    box-shadow: 0 12px 48px rgba(15, 164, 175, 0.15);
+    border-color: #d1d5db;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.08);
+  }
+  
+  html.dark .card {
+    background: #1f2937;
+    border-color: #374151;
+  }
+  
+  html.dark .card:hover {
+    background: #374151;
+    border-color: #4b5563;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
   }
   
   /* Icon styles */
@@ -113,15 +135,27 @@
   
   /* Glassmorphism utility */
   .glass {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  html.dark .glass {
+    background: rgba(31, 41, 55, 0.98);
+    border: 1px solid rgba(75, 85, 99, 0.3);
   }
   
   .glass-dark {
-    background: rgba(0, 49, 53, 0.8);
+    background: rgba(0, 49, 53, 0.9);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(15, 164, 175, 0.3);
+  }
+  
+  html.dark .glass-dark {
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(15, 164, 175, 0.4);
   }
 }
 

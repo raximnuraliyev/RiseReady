@@ -9,28 +9,30 @@ import {
   addTask,
   toggleTask,
   addMessage,
-  uploadFile
+  uploadFile,
+  removeMember
 } from '../controllers/projectController.js'
 
 const router = express.Router()
 
 // Project CRUD
-router.get('/projects', auth, getUserProjects)
-router.post('/projects', auth, createProject)
-router.put('/projects/:projectId', auth, updateProject)
+router.get('/', auth, getUserProjects)
+router.post('/', auth, createProject)
+router.put('/:projectId', auth, updateProject)
 
 // Project membership
-router.post('/projects/join', auth, joinProject)
-router.post('/projects/:projectId/leave', auth, leaveProject)
+router.post('/join', auth, joinProject)
+router.post('/:projectId/leave', auth, leaveProject)
+router.delete('/:projectId/members/:memberId', auth, removeMember)
 
 // Tasks
-router.post('/projects/:projectId/tasks', auth, addTask)
-router.put('/projects/:projectId/tasks/:taskId', auth, toggleTask)
+router.post('/:projectId/tasks', auth, addTask)
+router.put('/:projectId/tasks/:taskId', auth, toggleTask)
 
 // Messages
-router.post('/projects/:projectId/messages', auth, addMessage)
+router.post('/:projectId/messages', auth, addMessage)
 
 // Files
-router.post('/projects/:projectId/files', auth, uploadFile)
+router.post('/:projectId/files', auth, uploadFile)
 
 export default router

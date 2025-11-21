@@ -55,22 +55,69 @@ export function startNotificationWorker(intervalMs = 30 * 1000) {
             console.warn('Failed to emit notification via socket', err)
           }
 
+          // Send email notification if enabled
           try {
             if (mailTransporter) {
               const user = await User.findById(n.userId).lean()
-              if (user && user.email && user.settings && user.settings.notifications && user.settings.notifications.reminders) {
-                const from = process.env.FROM_EMAIL || `no-reply@${process.env.SMTP_HOST || 'riseready.app'}`
-                await mailTransporter.sendMail({
-                  from,
-                  to: user.email,
-                  subject: n.title || 'Reminder from RiseReady',
-                  text: `${n.message || ''}\n\nOpen: ${process.env.APP_URL || ''}${n.link || ''}`,
-                  html: `<p>${n.message || ''}</p><p><a href="${(process.env.APP_URL || '') + (n.link || '')}">Open event</a></p>`
+              if (user && user.email && user.settings?.notifications?.email) {
+                // Check notification type and user preferences
+                let shouldSendEmail = false
+                const notifType = n.type || 'reminders'
+                
+                if (notifType === 'reminder' && user.settings.notifications.email.reminders) {
+                  shouldSendEmail = true
+                } else if (notifType === 'achievement' && user.settings.notifications.email.achievements) {
+                  shouldSendEmail = true
+                } else if (notifType === 'social' && user.settings.notifications.email.social) {
+                  shouldSendEmail = true
+                } else if (notifType === 'career' && user.settings.notifications.email.career) {
+                  shouldSendEmail = true
+                }
+
+                if (shouldSendEmail) {
+                  const from = process.env.FROM_EMAIL || `no-reply@${process.env.SMTP_HOST || 'riseready.app'}`
+                  await mailTransporter.sendMail({
+                    from,
+                    to: user.email,
+                    subject: n.title || 'Notification from RiseReady',
+                    text: `${n.message || ''}\n\nOpen: ${process.env.APP_URL || ''}${n.link || ''}`,
+                    html: `<p>${n.message || ''}</p><p><a href="${(process.env.APP_URL || '') + (n.link || '')}">Open event</a></p>`
+                  })
+                }
+              }
+            }
+          } catch (err) {
+            console.warn('Failed to send email notification', err)
+          }
+
+          // Send push notification if enabled
+          try {
+            const user = await User.findById(n.userId).lean()
+            if (user && user.settings?.notifications?.push) {
+              // Check notification type and user preferences
+              let shouldSendPush = false
+              const notifType = n.type || 'reminders'
+              
+              if (notifType === 'reminder' && user.settings.notifications.push.reminders) {
+                shouldSendPush = true
+              } else if (notifType === 'achievement' && user.settings.notifications.push.achievements) {
+                shouldSendPush = true
+              } else if (notifType === 'social' && user.settings.notifications.push.social) {
+                shouldSendPush = true
+              } else if (notifType === 'career' && user.settings.notifications.push.career) {
+                shouldSendPush = true
+              }
+
+              if (shouldSendPush) {
+                io.to(String(n.userId)).emit('push-notification', {
+                  title: n.title || 'RiseReady Notification',
+                  body: n.message,
+                  data: { link: n.link }
                 })
               }
             }
           } catch (err) {
-            console.warn('Failed to send reminder email', err)
+            console.warn('Failed to send push notification', err)
           }
 
           // mark as sent

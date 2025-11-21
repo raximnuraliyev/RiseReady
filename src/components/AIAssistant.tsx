@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, X, MessageCircle, RotateCcw, ThumbsUp, ThumbsDown } from 'lucide-react'
+import { Send, X, MessageCircle, RotateCcw, ThumbsUp, ThumbsDown, Clock, DollarSign, Rocket, Briefcase, Calendar, Heart } from 'lucide-react'
 import axios from 'axios'
 import './AIAssistant.css'
 
@@ -16,13 +16,18 @@ interface AIAssistantProps {
   pageContext?: string
 }
 
-const QUICK_REPLY_SUGGESTIONS = [
-  { text: "Tell me about Focus", icon: '⏱️' },
-  { text: "How do I track budgeting?", icon: '💰' },
-  { text: "What is RiseReady?", icon: '🚀' },
-  { text: "Help with internships", icon: '💼' },
-  { text: "Calendar features", icon: '📅' },
-  { text: "Wellbeing check-in", icon: '💚' },
+interface QuickReplySuggestion {
+  text: string
+  icon: React.ComponentType<{ size?: number; className?: string }>
+}
+
+const QUICK_REPLY_SUGGESTIONS: QuickReplySuggestion[] = [
+  { text: "Tell me about Focus", icon: Clock },
+  { text: "How do I track budgeting?", icon: DollarSign },
+  { text: "What is RiseReady?", icon: Rocket },
+  { text: "Help with internships", icon: Briefcase },
+  { text: "Calendar features", icon: Calendar },
+  { text: "Wellbeing check-in", icon: Heart },
 ]
 
 const AIAssistant: React.FC<AIAssistantProps> = ({ pageContext }) => {
@@ -68,7 +73,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ pageContext }) => {
           id: '0',
           role: 'assistant',
           content:
-            "Hey there! 👋 I'm RiseReady Assistant — how can I help you today? Feel free to ask me about our features, modules, or anything about navigating RiseReady!",
+            "Hey there! I'm RiseReady Assistant — how can I help you today? Feel free to ask me about our features, modules, or anything about navigating RiseReady!",
           timestamp: new Date(),
         },
       ])
@@ -152,7 +157,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ pageContext }) => {
         id: '0',
         role: 'assistant',
         content:
-          "Hey there! 👋 I'm RiseReady Assistant — how can I help you today? Feel free to ask me about our features, modules, or anything about navigating RiseReady!",
+          "Hey there! I'm RiseReady Assistant — how can I help you today? Feel free to ask me about our features, modules, or anything about navigating RiseReady!",
         timestamp: new Date(),
       },
     ])
@@ -179,8 +184,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ pageContext }) => {
               className="orb-glow"
               animate={{
                 boxShadow: [
-                  '0 0 20px rgba(34, 197, 94, 0.3)',
-                  '0 0 40px rgba(34, 197, 94, 0.6)',
+                  '0 0 20px rgba(46, 73, 56, 0.3)',
+                  '0 0 40px rgba(28, 94, 52, 0.6)',
                   '0 0 20px rgba(34, 197, 94, 0.3)',
                 ],
               }}
@@ -226,21 +231,31 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ pageContext }) => {
                   <MessageCircle size={18} className="header-icon" />
                   <h3>RiseReady Assistant</h3>
                 </div>
-                <button
+                <motion.button
                   className="reset-btn"
                   onClick={handleReset}
                   title="Start new conversation"
+                  whileHover={{ scale: 1.1, backgroundColor: 'rgba(255, 255, 255, 0.35)' }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <RotateCcw size={16} />
-                </button>
+                  <motion.div
+                    animate={{ rotate: [0, 180] }}
+                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <RotateCcw size={20} />
+                  </motion.div>
+                </motion.button>
               </div>
-              <button
+              <motion.button
                 className="close-btn"
                 onClick={() => setIsOpen(false)}
                 aria-label="Close assistant"
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <X size={20} />
-              </button>
+              </motion.button>
             </div>
 
             {/* Messages Area */}
@@ -288,12 +303,15 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ pageContext }) => {
                           </div>
                         </div>
                       ) : (
-                        <button
-                          className="show-feedback-btn"
-                          onClick={() => setShowFeedback(index)}
-                        >
-                          👍 👎
-                        </button>
+                        <motion.button
+                           className="show-feedback-btn"
+                           onClick={() => setShowFeedback(index)}
+                           whileHover={{ scale: 1.1 }}
+                           whileTap={{ scale: 0.95 }}
+                         >
+                           <ThumbsUp size={16} />
+                           <ThumbsDown size={16} />
+                         </motion.button>
                       )}
                     </motion.div>
                   )}
@@ -351,15 +369,15 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ pageContext }) => {
                 <div className="quick-replies-grid">
                   {QUICK_REPLY_SUGGESTIONS.slice(0, 4).map((suggestion, idx) => (
                     <motion.button
-                      key={idx}
-                      className="quick-reply-btn"
-                      onClick={() => handleQuickReply(suggestion.text)}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <span className="suggestion-icon">{suggestion.icon}</span>
-                      <span className="suggestion-text">{suggestion.text}</span>
-                    </motion.button>
+                       key={idx}
+                       className="quick-reply-btn"
+                       onClick={() => handleQuickReply(suggestion.text)}
+                       whileHover={{ scale: 1.05 }}
+                       whileTap={{ scale: 0.95 }}
+                     >
+                       <suggestion.icon size={20} className="suggestion-icon" />
+                       <span className="suggestion-text">{suggestion.text}</span>
+                     </motion.button>
                   ))}
                 </div>
               </motion.div>

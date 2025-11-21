@@ -11,7 +11,8 @@ import {
   Check,
   Filter,
   Sparkles,
-  X
+  X,
+  Search as SearchIcon
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 
@@ -210,33 +211,36 @@ export default function CommunityPage() {
   const availableGroups = filteredGroups.filter(g => !g.isJoined)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FFF5F7] via-[#F0F4FF] to-[#FFF9E6] pb-20">
+    <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#EC4899] to-[#F43F5E] rounded-2xl flex items-center justify-center shadow-lg">
-                <Users className="w-6 h-6 text-white" />
-              </div>
+              <motion.div
+                className="w-14 h-14 bg-gradient-to-br from-rose-600 to-rose-800 rounded-2xl flex items-center justify-center shadow-lg"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+              >
+                <Users className="w-7 h-7 text-white" strokeWidth={2} />
+              </motion.div>
               <div>
-                <h1 className="text-3xl font-bold text-[#1F4E79]">Community</h1>
-                <p className="text-sm text-gray-600 mt-0.5">Connect, collaborate, and grow together 🤝</p>
+                <h1 className="text-2xl font-bold text-gray-900">Community</h1>
+                <p className="text-sm text-gray-500 mt-1">Connect, collaborate, and grow together</p>
               </div>
             </div>
             <motion.button
               onClick={() => setShowCreatePost(true)}
               whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-6 py-3 bg-gradient-to-r from-[#EC4899] to-[#F43F5E] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+              whileTap={{ scale: 0.98 }}
+              className="px-6 py-2.5 bg-gradient-to-r from-rose-600 to-rose-800 text-white font-semibold rounded-lg shadow-lg flex items-center gap-2"
             >
               <Plus className="w-5 h-5" />
-              Create Private Group
+              <span className="hidden sm:inline">Create Group</span>
             </motion.button>
           </div>
 
           {/* Search & Filter */}
-          <div className="mt-6 flex gap-4">
+          <div className="mt-4 flex gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
@@ -244,7 +248,7 @@ export default function CommunityPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Find peers by major, year, interests..."
-                className="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#EC4899] focus:outline-none transition-colors"
+                className="w-full pl-12 pr-4 py-2.5 rounded-lg border border-gray-200 focus:border-rose-600 focus:outline-none focus:ring-1 focus:ring-rose-600 transition-all"
               />
             </div>
             <div className="relative">
@@ -252,7 +256,7 @@ export default function CommunityPage() {
               <select
                 value={filterCategory}
                 onChange={(e) => setFilterCategory(e.target.value)}
-                className="pl-12 pr-8 py-3 rounded-xl border-2 border-gray-200 focus:border-[#EC4899] focus:outline-none transition-colors appearance-none bg-white cursor-pointer"
+                className="pl-12 pr-8 py-2.5 rounded-lg border border-gray-200 focus:border-rose-600 focus:outline-none focus:ring-1 focus:ring-rose-600 transition-all appearance-none bg-white cursor-pointer"
               >
                 {categories.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
@@ -271,8 +275,8 @@ export default function CommunityPage() {
             {myGroups.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-[#1F4E79] flex items-center gap-2">
-                    <Sparkles className="w-6 h-6 text-[#EC4899]" />
+                  <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-rose-600" />
                     My Groups
                   </h2>
                   <span className="text-sm text-gray-600">{myGroups.length} joined</span>
@@ -284,68 +288,55 @@ export default function CommunityPage() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      whileHover={{ y: -8, scale: 1.02 }}
-                      className="bg-white rounded-2xl shadow-lg p-6 border-2 hover:shadow-2xl transition-all cursor-pointer"
-                      style={{ borderColor: `${group.color}40` }}
+                      whileHover={{ y: -4 }}
+                      className="bg-white rounded-xl shadow-md p-5 border border-gray-100 hover:border-rose-200 hover:shadow-lg transition-all"
                     >
-                      <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <div 
-                            className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-md"
+                            className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-sm"
                             style={{ backgroundColor: `${group.color}20` }}
                           >
                             {group.icon}
                           </div>
                           <div>
-                            <h3 className="font-bold text-lg text-[#1F4E79]">{group.name}</h3>
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <Users className="w-4 h-4" />
+                            <h3 className="font-semibold text-gray-900">{group.name}</h3>
+                            <div className="flex items-center gap-2 text-xs text-gray-600">
+                              <Users className="w-3 h-3" />
                               <span>{group.members} members</span>
                             </div>
                           </div>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{group.description}</p>
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <p className="text-xs text-gray-600 mb-3 line-clamp-2">{group.description}</p>
+                      <div className="flex flex-wrap gap-1 mb-3">
                         {group.tags.map(tag => (
                           <span 
                             key={tag} 
-                            className="px-3 py-1 rounded-lg text-xs font-semibold"
-                            style={{ backgroundColor: `${group.color}20`, color: group.color }}
+                            className="px-2 py-1 rounded text-xs font-medium"
+                            style={{ backgroundColor: `${group.color}15`, color: group.color }}
                           >
                             {tag}
                           </span>
                         ))}
                       </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1 text-gray-500">
                           <Clock className="w-3 h-3" />
                           <span>Active {formatDistanceToNow(group.lastActive, { addSuffix: true })}</span>
-                          {group.private && group.leaderId === currentUserId && group.joinCode && (
-                            <span className="ml-3 px-2 py-0.5 rounded bg-gray-100 text-gray-600">Code: {group.joinCode}</span>
-                          )}
                         </div>
-                        <div className="flex items-center gap-2">
-                          {group.leaderId === currentUserId && (
-                            <button
-                              onClick={(e)=>{e.stopPropagation(); setShowManage({open:true, groupId: group.id})}}
-                              className="px-3 py-2 rounded-xl border-2 border-gray-200 text-sm"
-                            >
-                              Manage
-                            </button>
-                          )}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleJoinToggle(group.id)
-                            }}
-                            className="px-4 py-2 rounded-xl font-semibold text-sm flex items-center gap-2 transition-all"
-                            style={{ backgroundColor: `${group.color}20`, color: group.color }}
-                          >
-                            <Check className="w-4 h-4" />
-                            Joined
-                          </button>
-                        </div>
+                        <motion.button
+                          onClick={(e: React.MouseEvent) => {
+                            e.stopPropagation()
+                            handleJoinToggle(group.id)
+                          }}
+                          className="px-3 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1 transition-all"
+                          style={{ backgroundColor: `${group.color}20`, color: group.color }}
+                          whileHover={{ scale: 1.05 }}
+                        >
+                          <Check className="w-3 h-3" />
+                          Joined
+                        </motion.button>
                       </div>
                     </motion.div>
                   ))}
@@ -356,16 +347,18 @@ export default function CommunityPage() {
             {/* Available Groups */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-[#1F4E79] flex items-center gap-2">
-                  <TrendingUp className="w-6 h-6 text-[#10B981]" />
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-emerald-600" />
                   Discover Groups
                 </h2>
                 <span className="text-sm text-gray-600">{availableGroups.length} available</span>
               </div>
               {availableGroups.length === 0 ? (
-                <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-                  <div className="text-6xl mb-4">🔍</div>
-                  <h3 className="text-xl font-bold text-[#1F4E79] mb-2">No groups found</h3>
+                <div className="bg-white rounded-xl shadow-md p-12 text-center border border-gray-100">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-gray-300 to-gray-400 rounded-2xl flex items-center justify-center">
+                    <SearchIcon className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">No groups found</h3>
                   <p className="text-gray-600">Try adjusting your search or filters</p>
                 </div>
               ) : (
@@ -376,53 +369,54 @@ export default function CommunityPage() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      whileHover={{ y: -8, scale: 1.02 }}
-                      className="bg-white rounded-2xl shadow-md p-6 border-2 border-gray-100 hover:border-[#EC4899]/50 hover:shadow-xl transition-all cursor-pointer"
+                      whileHover={{ y: -4 }}
+                      className="bg-white rounded-xl shadow-md p-5 border border-gray-100 hover:border-rose-200 hover:shadow-lg transition-all"
                     >
-                      <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <div 
-                            className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-md"
+                            className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-sm"
                             style={{ backgroundColor: `${group.color}20` }}
                           >
                             {group.icon}
                           </div>
                           <div>
-                            <h3 className="font-bold text-lg text-[#1F4E79]">{group.name}</h3>
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <Users className="w-4 h-4" />
+                            <h3 className="font-semibold text-gray-900">{group.name}</h3>
+                            <div className="flex items-center gap-2 text-xs text-gray-600">
+                              <Users className="w-3 h-3" />
                               <span>{group.members} members</span>
                             </div>
                           </div>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{group.description}</p>
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <p className="text-xs text-gray-600 mb-3 line-clamp-2">{group.description}</p>
+                      <div className="flex flex-wrap gap-1 mb-3">
                         {group.tags.map(tag => (
                           <span 
                             key={tag} 
-                            className="px-3 py-1 rounded-lg text-xs font-semibold"
-                            style={{ backgroundColor: `${group.color}20`, color: group.color }}
+                            className="px-2 py-1 rounded text-xs font-medium"
+                            style={{ backgroundColor: `${group.color}15`, color: group.color }}
                           >
                             {tag}
                           </span>
                         ))}
                       </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1 text-gray-500">
                           <Clock className="w-3 h-3" />
                           <span>Active {formatDistanceToNow(group.lastActive, { addSuffix: true })}</span>
                         </div>
-                        <button
-                          onClick={(e) => {
+                        <motion.button
+                          onClick={(e: React.MouseEvent) => {
                             e.stopPropagation()
                             handleJoinToggle(group.id)
                           }}
-                          className="px-4 py-2 bg-gradient-to-r from-[#EC4899] to-[#F43F5E] text-white rounded-xl font-semibold text-sm hover:scale-105 transition-transform flex items-center gap-2"
+                          className="px-3 py-1.5 bg-gradient-to-r from-rose-600 to-rose-800 text-white rounded-lg font-semibold text-xs flex items-center gap-1 transition-all"
+                          whileHover={{ scale: 1.05 }}
                         >
-                          <UserPlus className="w-4 h-4" />
+                          <UserPlus className="w-3 h-3" />
                           Join
-                        </button>
+                        </motion.button>
                       </div>
                     </motion.div>
                   ))}
@@ -452,36 +446,37 @@ export default function CommunityPage() {
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden"
+                className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden"
                 onClick={(e: MouseEvent) => e.stopPropagation()}
               >
-                <div className="bg-gradient-to-br from-[#EC4899] to-[#F43F5E] p-6">
+                <div className="bg-gradient-to-br from-rose-600 to-rose-800 p-6">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-white">Create Private Group</h2>
-                    <button
+                    <motion.button
                       onClick={() => setShowCreatePost(false)}
                       className="p-2 hover:bg-white/20 rounded-lg transition-all"
+                      whileHover={{ rotate: 90 }}
                     >
-                      <X className="w-6 h-6 text-white" />
-                    </button>
+                      <X className="w-6 h-6 text-white" strokeWidth={2} />
+                    </motion.button>
                   </div>
-                  <p className="text-white/90 mt-1">Share with your community</p>
+                  <p className="text-white/80 mt-1">Share with your community</p>
                 </div>
 
                 <div className="p-6 space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Group name</label>
-                    <input value={newGroup.name} onChange={(e: ChangeEvent<HTMLInputElement>)=>setNewGroup({...newGroup,name:e.target.value})} className="w-full px-4 py-3 rounded-xl border-2 border-gray-200" placeholder="e.g., Algorithms Ninjas"/>
+                    <input value={newGroup.name} onChange={(e: ChangeEvent<HTMLInputElement>)=>setNewGroup({...newGroup,name:e.target.value})} className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-rose-600 focus:outline-none focus:ring-1 focus:ring-rose-600" placeholder="e.g., Algorithms Ninjas"/>
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
-                    <textarea value={newGroup.description} onChange={(e: ChangeEvent<HTMLTextAreaElement>)=>setNewGroup({...newGroup,description:e.target.value})} className="w-full h-28 px-4 py-3 rounded-xl border-2 border-gray-200"/>
+                    <textarea value={newGroup.description} onChange={(e: ChangeEvent<HTMLTextAreaElement>)=>setNewGroup({...newGroup,description:e.target.value})} className="w-full h-28 px-4 py-2.5 rounded-lg border border-gray-200 focus:border-rose-600 focus:outline-none focus:ring-1 focus:ring-rose-600"/>
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Tags (comma separated)</label>
-                    <input value={newGroup.tags} onChange={(e: ChangeEvent<HTMLInputElement>)=>setNewGroup({...newGroup,tags:e.target.value})} className="w-full px-4 py-3 rounded-xl border-2 border-gray-200" placeholder="Algorithms, DS, Study"/>
+                    <input value={newGroup.tags} onChange={(e: ChangeEvent<HTMLInputElement>)=>setNewGroup({...newGroup,tags:e.target.value})} className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-rose-600 focus:outline-none focus:ring-1 focus:ring-rose-600" placeholder="Algorithms, DS, Study"/>
                   </div>
-                  <button
+                  <motion.button
                     onClick={() => {
                       if(!newGroup.name.trim()) return;
                       const code = `${Math.floor(100000+Math.random()*900000)}-${String.fromCharCode(65+Math.floor(Math.random()*26))}${String.fromCharCode(65+Math.floor(Math.random()*26))}`
@@ -490,10 +485,11 @@ export default function CommunityPage() {
                       }
                       setGroups([g,...groups]); setShowCreatePost(false); setNewGroup({name:'',description:'',tags:''})
                     }}
-                    className="w-full py-4 bg-gradient-to-r from-[#EC4899] to-[#F43F5E] text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                    className="w-full py-3 bg-gradient-to-r from-rose-600 to-rose-800 text-white font-semibold rounded-lg shadow-lg"
+                    whileHover={{ scale: 1.02 }}
                   >
                     Create Group (Private)
-                  </button>
+                  </motion.button>
                   <p className="text-xs text-gray-600">A join code will be generated and visible to the leader.</p>
                 </div>
               </motion.div>
@@ -515,13 +511,13 @@ export default function CommunityPage() {
                   return (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <div className="font-bold text-[#1F4E79] text-xl">Manage Group</div>
-                        <button onClick={()=>setShowManage({open:false})} className="p-2 border-2 rounded-lg"><X className="w-4 h-4"/></button>
+                        <div className="font-semibold text-lg text-gray-900">Manage Group</div>
+                        <motion.button onClick={()=>setShowManage({open:false})} className="p-2 hover:bg-gray-100 rounded-lg transition-all" whileHover={{ rotate: 90 }}><X className="w-5 h-5 text-gray-600"/></motion.button>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <input defaultValue={g.name} onChange={(e: ChangeEvent<HTMLInputElement>)=>g.name= e.target.value} className="px-3 py-2 rounded-lg border-2 border-gray-200" />
-                        <input defaultValue={g.tags.join(', ')} onChange={(e: ChangeEvent<HTMLInputElement>)=>g.tags= e.target.value.split(',').map(t=>t.trim()).filter(Boolean)} className="px-3 py-2 rounded-lg border-2 border-gray-200" />
-                        <textarea defaultValue={g.description} onChange={(e: ChangeEvent<HTMLTextAreaElement>)=>g.description= e.target.value} className="md:col-span-2 px-3 py-2 rounded-lg border-2 border-gray-200" rows={3}/>
+                        <input defaultValue={g.name} onChange={(e: ChangeEvent<HTMLInputElement>)=>g.name= e.target.value} className="px-4 py-2.5 rounded-lg border border-gray-200 focus:border-rose-600 focus:outline-none focus:ring-1 focus:ring-rose-600" />
+                        <input defaultValue={g.tags.join(', ')} onChange={(e: ChangeEvent<HTMLInputElement>)=>g.tags= e.target.value.split(',').map(t=>t.trim()).filter(Boolean)} className="px-4 py-2.5 rounded-lg border border-gray-200 focus:border-rose-600 focus:outline-none focus:ring-1 focus:ring-rose-600" />
+                        <textarea defaultValue={g.description} onChange={(e: ChangeEvent<HTMLTextAreaElement>)=>g.description= e.target.value} className="md:col-span-2 px-4 py-2.5 rounded-lg border border-gray-200 focus:border-rose-600 focus:outline-none focus:ring-1 focus:ring-rose-600" rows={3}/>
                       </div>
                       <div className="text-sm text-gray-700 flex items-center gap-3">
                         <label className="flex items-center gap-2">
@@ -529,25 +525,25 @@ export default function CommunityPage() {
                           <span>Enable join-by-code</span>
                         </label>
                         <div>
-                          Join code: <span className="font-mono px-2 py-0.5 rounded bg-gray-100">{g.private && g.joinCode ? g.joinCode : '—'}</span>
+                          Join code: <span className="font-mono px-2 py-1 rounded bg-gray-100 text-sm">{g.private && g.joinCode ? g.joinCode : '—'}</span>
                         </div>
                         {g.private && (
-                          <button onClick={()=>{ g.joinCode = `${Math.floor(100000+Math.random()*900000)}-${String.fromCharCode(65+Math.floor(Math.random()*26))}${String.fromCharCode(65+Math.floor(Math.random()*26))}` }} className="px-2 py-1 border-2 rounded-lg text-xs">Regenerate</button>
+                          <motion.button onClick={()=>{ g.joinCode = `${Math.floor(100000+Math.random()*900000)}-${String.fromCharCode(65+Math.floor(Math.random()*26))}${String.fromCharCode(65+Math.floor(Math.random()*26))}` }} className="px-3 py-1 border border-gray-200 rounded-lg text-xs hover:bg-gray-50" whileHover={{ scale: 1.05 }}>Regenerate</motion.button>
                         )}
                       </div>
                       <div className="text-sm text-gray-700">Members</div>
                       <ul className="space-y-2">
                         {(g.membersList||['You','Member A','Member B']).map((m,idx)=> (
-                          <li key={idx} className="flex items-center justify-between p-2 rounded-lg border-2 border-gray-100">
+                          <li key={idx} className="flex items-center justify-between p-2.5 rounded-lg border border-gray-100 hover:bg-gray-50">
                             <span>{m}</span>
                             {m!=='You' && (
-                              <button onClick={()=>{ const updated=groups.map(gr=> gr.id===g.id?{...gr, members: Math.max(0,gr.members-1), membersList:(gr.membersList||['You','Member A','Member B']).filter(x=>x!==m)}:gr); setGroups(updated)}} className="text-red-600 text-sm">Remove</button>
+                              <motion.button onClick={()=>{ const updated=groups.map(gr=> gr.id===g.id?{...gr, members: Math.max(0,gr.members-1), membersList:(gr.membersList||['You','Member A','Member B']).filter(x=>x!==m)}:gr); setGroups(updated)}} className="text-red-600 text-xs hover:underline" whileHover={{ scale: 1.05 }}>Remove</motion.button>
                             )}
                           </li>
                         ))}
                       </ul>
-                      <div className="flex justify-end">
-                        <button onClick={()=>{ setGroups(groups.map(gr=> gr.id===g.id?{...g}:gr)); setShowManage({open:false}) }} className="px-5 py-2 rounded-lg bg-[#1F4E79] text-white font-semibold">Save</button>
+                      <div className="flex justify-end pt-2">
+                        <motion.button onClick={()=>{ setGroups(groups.map(gr=> gr.id===g.id?{...g}:gr)); setShowManage({open:false}) }} className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-rose-600 to-rose-800 text-white font-semibold" whileHover={{ scale: 1.05 }}>Save</motion.button>
                       </div>
                     </div>
                   )

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Calendar, Plus } from 'lucide-react'
 import CalendarWeekView from '../../components/dashboard/calendar/CalendarWeekView'
 import CalendarMonthView from '../../components/dashboard/calendar/CalendarMonthView'
 import CalendarDayView from '../../components/dashboard/calendar/CalendarDayView'
@@ -40,17 +41,21 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
-                <svg className="w-8 h-8 text-[#37A6FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <h1 className="text-2xl font-bold text-[#1F4E79]">Calendar</h1>
+              <motion.div
+                className="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl flex items-center justify-center shadow-lg"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+              >
+                <Calendar className="w-7 h-7 text-white" strokeWidth={2} />
+              </motion.div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Calendar</h1>
+                <p className="text-sm text-gray-500 mt-1">Manage your schedule</p>
               </div>
             </div>
 
@@ -71,7 +76,7 @@ export default function CalendarPage() {
                     {view === viewType && (
                       <motion.div
                         layoutId="activeView"
-                        className="absolute inset-0 bg-[#37A6FF] rounded-md"
+                        className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-800 rounded-md"
                         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                       />
                     )}
@@ -83,13 +88,11 @@ export default function CalendarPage() {
               {/* Add Event Button */}
               <motion.button
                 onClick={() => setIsAddModalOpen(true)}
-                className="flex items-center gap-2 px-6 py-2.5 bg-[#37A6FF] text-white rounded-lg font-semibold hover:bg-[#2891e8] transition-colors shadow-sm"
+                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg font-semibold shadow-lg"
                 whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
+                <Plus className="w-5 h-5" />
                 Add Event
               </motion.button>
             </div>
@@ -152,7 +155,7 @@ export default function CalendarPage() {
       {/* Mobile Add Button - Fixed bottom right */}
       <motion.button
         onClick={() => setIsAddModalOpen(true)}
-        className="lg:hidden fixed bottom-6 right-6 w-14 h-14 bg-[#37A6FF] text-white rounded-full shadow-lg flex items-center justify-center z-50"
+        className="lg:hidden fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-full shadow-lg flex items-center justify-center z-50"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         animate={{ y: [0, -10, 0] }}
@@ -160,9 +163,7 @@ export default function CalendarPage() {
           y: { duration: 2, repeat: Infinity, ease: 'easeInOut' },
         }}
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
+        <Plus className="w-6 h-6" />
       </motion.button>
 
       {/* Mobile Upcoming Events - Collapsible at bottom */}

@@ -129,27 +129,41 @@ export async function leaveProject(req, res) {
 export async function addTask(req, res) {
   try {
     const { projectId } = req.params
-    const { title, assigneeId } = req.body
+    const { title, description, importance, isGeneral, assignedTo, dueDate, tags } = req.body
+    
+    if (!title || !title.trim()) {
+      return res.status(400).json({ error: 'Task title required' })
+    }
     
     const project = await Project.findById(projectId)
     if (!project) return res.status(404).json({ error: 'Project not found' })
     
     // Only members can add tasks
-    if (!project.members.includes(req.user.id)) {
+    if (!project.members.some(id => id.toString() === req.user.id)) {
       return res.status(403).json({ error: 'Not a project member' })
     }
     
-    project.tasks.push({ title, assigneeId })
-    project.updateProgress()
+    project.tasks.push({ 
+      title,
+      description: description || '',
+      importance: importance || 'medium',
+      isGeneral: isGeneral || false,
+      assignedTo: assignedTo || null,
+      dueDate: dueDate || null,
+      tags: tags || [],
+      status: 'todo'
+    })
     await project.save()
     
     const populated = await project.populate([
       { path: 'members', select: 'name avatar' },
-      { path: 'leaderId', select: 'name avatar' }
+      { path: 'leaderId', select: 'name avatar' },
+      { path: 'tasks.assignedTo', select: 'name avatar' }
     ])
     
     res.json(populated)
   } catch (error) {
+    console.error('Add task error:', error)
     res.status(500).json({ error: 'Failed to add task' })
   }
 }
@@ -163,24 +177,25 @@ export async function toggleTask(req, res) {
     if (!project) return res.status(404).json({ error: 'Project not found' })
     
     // Only members can toggle tasks
-    if (!project.members.includes(req.user.id)) {
+    if (!project.members.some(id => id.toString() === req.user.id)) {
       return res.status(403).json({ error: 'Not a project member' })
     }
     
     const task = project.tasks.id(taskId)
     if (!task) return res.status(404).json({ error: 'Task not found' })
     
-    task.done = !task.done
-    project.updateProgress()
+    task.completed = !task.completed
     await project.save()
     
     const populated = await project.populate([
       { path: 'members', select: 'name avatar' },
-      { path: 'leaderId', select: 'name avatar' }
+      { path: 'leaderId', select: 'name avatar' },
+      { path: 'tasks.assignedTo', select: 'name avatar' }
     ])
     
     res.json(populated)
   } catch (error) {
+    console.error('Toggle task error:', error)
     res.status(500).json({ error: 'Failed to toggle task' })
   }
 }
@@ -191,25 +206,30 @@ export async function addMessage(req, res) {
     const { projectId } = req.params
     const { text } = req.body
     
+    if (!text || !text.trim()) {
+      return res.status(400).json({ error: 'Message text required' })
+    }
+    
     const project = await Project.findById(projectId)
     if (!project) return res.status(404).json({ error: 'Project not found' })
     
     // Only members can add messages
-    if (!project.members.includes(req.user.id)) {
+    if (!project.members.some(id => id.toString() === req.user.id)) {
       return res.status(403).json({ error: 'Not a project member' })
     }
     
-    project.messages.push({ author: req.user.id, text })
+    project.messages.push({ user: req.user.id, content: text })
     await project.save()
     
     const populated = await project.populate([
       { path: 'members', select: 'name avatar' },
       { path: 'leaderId', select: 'name avatar' },
-      { path: 'messages.author', select: 'name avatar' }
+      { path: 'messages.user', select: 'name avatar' }
     ])
     
     res.json(populated)
   } catch (error) {
+    console.error('Add message error:', error)
     res.status(500).json({ error: 'Failed to add message' })
   }
 }
@@ -218,17 +238,55 @@ export async function addMessage(req, res) {
 export async function uploadFile(req, res) {
   try {
     const { projectId } = req.params
-    const { name, size, url } = req.body // URL would come from your file upload service
+    const { name, size, url } = req.body
+    
+    if (!name || !url) {
+      return res.status(400).json({ error: 'File name and URL required' })
+    }
     
     const project = await Project.findById(projectId)
     if (!project) return res.status(404).json({ error: 'Project not found' })
     
     // Only members can upload files
-    if (!project.members.includes(req.user.id)) {
+    if (!project.members.some(id => id.toString() === req.user.id)) {
       return res.status(403).json({ error: 'Not a project member' })
     }
     
-    project.files.push({ name, size, url })
+    project.files.push({ name, url, uploadedBy: req.user.id })
+    await project.save()
+    
+    const populated = await project.populate([
+      { path: 'members', select: 'name avatar' },
+      { path: 'leaderId', select: 'name avatar' },
+      { path: 'files.uploadedBy', select: 'name avatar' }
+    ])
+    
+    res.json(populated)
+  } catch (error) {
+    console.error('Upload file error:', error)
+    res.status(500).json({ error: 'Failed to upload file' })
+  }
+}
+
+// Remove a member from project (leader only)
+export async function removeMember(req, res) {
+  try {
+    const { projectId, memberId } = req.params
+    
+    const project = await Project.findById(projectId)
+    if (!project) return res.status(404).json({ error: 'Project not found' })
+    
+    // Only leader can remove members
+    if (project.leaderId.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'Only project leader can remove members' })
+    }
+    
+    // Can't remove the leader
+    if (memberId === project.leaderId.toString()) {
+      return res.status(400).json({ error: 'Cannot remove project leader' })
+    }
+    
+    project.members = project.members.filter(id => id.toString() !== memberId)
     await project.save()
     
     const populated = await project.populate([
@@ -238,6 +296,7 @@ export async function uploadFile(req, res) {
     
     res.json(populated)
   } catch (error) {
-    res.status(500).json({ error: 'Failed to upload file' })
+    console.error('Remove member error:', error)
+    res.status(500).json({ error: 'Failed to remove member' })
   }
 }

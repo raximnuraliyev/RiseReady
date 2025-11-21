@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { useState, FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import MeshBackground from '../components/backgrounds/MeshBackground'
 
 export default function ContactPage() {
@@ -253,6 +254,27 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
+
+      {/* Back to Home Button */}
+      <div className="fixed bottom-8 left-8 z-50">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/95 text-primary shadow-lg hover:bg-white transition-all duration-300 font-medium text-sm"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Home
+          </Link>
+        </motion.div>
+      </div>
     </>
   )
 }

@@ -67,7 +67,7 @@ export default function NotificationsPage() {
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#37A6FF] to-[#1F4E79] text-white grid place-items-center shadow"><Bell className="w-6 h-6" /></div>
             <div>
-              <h1 className="text-3xl font-bold text-[#1F4E79]">Notifications</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
               <p className="text-sm text-gray-600">{unreadCount} unread</p>
             </div>
           </div>

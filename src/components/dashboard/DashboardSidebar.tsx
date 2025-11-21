@@ -9,9 +9,11 @@ import {
   CalendarDays,
   DollarSign,
   Users,
+  Briefcase,
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Folders
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -22,9 +24,12 @@ interface SidebarProps {
 const navItems = [
   { path: '/dashboard', icon: Home, label: 'Overview' },
   { path: '/dashboard/focus', icon: Target, label: 'Focus' },
+  { path: '/dashboard/achievements', icon: Award, label: 'Achievements' },
+  { path: '/dashboard/projects', icon: Folders, label: 'Projects' },
   { path: '/dashboard/wellbeing', icon: HeartPulse, label: 'Wellbeing' },
   { path: '/dashboard/skills', icon: Award, label: 'Skills' },
   { path: '/dashboard/career', icon: Rocket, label: 'Career' },
+  { path: '/dashboard/internships', icon: Briefcase, label: 'Internships' },
   { path: '/dashboard/calendar', icon: CalendarDays, label: 'Calendar' },
   { path: '/dashboard/budget', icon: DollarSign, label: 'Budget' },
   { path: '/dashboard/community', icon: Users, label: 'Community' },

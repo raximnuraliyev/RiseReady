@@ -46,10 +46,18 @@ const UserSchema = new mongoose.Schema({
   // User settings
   settings: {
     notifications: {
-      reminders: { type: Boolean, default: true },
-      achievements: { type: Boolean, default: true },
-      social: { type: Boolean, default: true },
-      career: { type: Boolean, default: true },
+      email: {
+        reminders: { type: Boolean, default: true },
+        achievements: { type: Boolean, default: true },
+        social: { type: Boolean, default: true },
+        career: { type: Boolean, default: true }
+      },
+      push: {
+        reminders: { type: Boolean, default: true },
+        achievements: { type: Boolean, default: true },
+        social: { type: Boolean, default: true },
+        career: { type: Boolean, default: true }
+      }
     },
     privacy: {
       profileVisible: { type: Boolean, default: true },

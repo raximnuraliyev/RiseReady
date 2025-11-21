@@ -6,6 +6,7 @@ import {
   Flame
 } from 'lucide-react'
 import useAuth from '../../hooks/useAuth'
+import { useTheme } from '../../hooks/useTheme'
 import { useNotifications } from '../../hooks/useNotifications'
 import socketUtils from '../../utils/socket'
 import { DashboardProvider } from '../../contexts/DashboardContext'
@@ -41,6 +42,7 @@ const ErrorDisplay = ({ error, onRetry }: { error: string; onRetry: () => void }
 const DashboardLayout: React.FC = () => {
   const navigate = useNavigate()
   const { user, loading, error, logout } = useAuth()
+  const { isDark } = useTheme()
   const { streak } = useWellbeing()
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
@@ -78,7 +80,7 @@ const DashboardLayout: React.FC = () => {
   const unreadCount = notifications.filter(n => !n.isRead).length
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
       {/* Sidebar */}
       <DashboardSidebar isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
 
@@ -91,13 +93,13 @@ const DashboardLayout: React.FC = () => {
       {/* Main Content */}
       <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
         {/* Top Bar */}
-        <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-end px-4 fixed top-0 right-0 left-0 z-10">
+        <div className={`h-16 ${isDark ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'} border-b flex items-center justify-end px-4 fixed top-0 right-0 left-0 z-10`}>
           <div className="flex items-center space-x-4">
             {/* Streak Indicator */}
             <div className="relative">
-              <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#FFD700]/20 to-[#FFA500]/20 rounded-full">
+              <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${isDark ? 'bg-orange-900/30' : 'bg-gradient-to-r from-[#FFD700]/20 to-[#FFA500]/20'}`}>
                 <Flame className="w-5 h-5 text-[#FFA500]" />
-                <span className="font-medium text-[#1F4E79]">{streak.streak} Day Streak</span>
+                <span className={`font-medium ${isDark ? 'text-gray-200' : 'text-gray-900'}`}>{streak.streak} Day Streak</span>
               </div>
             </div>
 
@@ -105,9 +107,9 @@ const DashboardLayout: React.FC = () => {
             <div className="relative">
               <button 
                 onClick={() => setIsNotificationsOpen(true)}
-                className="p-2 rounded-lg hover:bg-gray-100 relative"
+                className={`p-2 rounded-lg relative transition-colors ${isDark ? 'hover:bg-gray-800 text-gray-400' : 'hover:bg-gray-100 text-gray-600'}`}
               >
-                <Bell size={20} className="text-gray-600" />
+                <Bell size={20} />
                 {unreadCount > 0 && (
                   <span className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
                     {unreadCount}
@@ -120,7 +122,7 @@ const DashboardLayout: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100"
+                className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
               >
                 {user.avatar ? (
                   <img 
@@ -137,19 +139,19 @@ const DashboardLayout: React.FC = () => {
               </button>
 
               {isUserMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 border border-gray-200">
+                <div className={`absolute right-0 mt-2 w-48 rounded-lg shadow-lg py-1 border ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                   <button
                     onClick={() => {
                       navigate('/dashboard/profile')
                       setIsUserMenuOpen(false)
                     }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className={`w-full text-left px-4 py-2 text-sm transition-colors ${isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`}
                   >
                     Profile Settings
                   </button>
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    className={`w-full text-left px-4 py-2 text-sm transition-colors ${isDark ? 'text-red-400 hover:bg-gray-700' : 'text-red-600 hover:bg-gray-100'}`}
                   >
                     Sign Out
                   </button>
@@ -160,7 +162,7 @@ const DashboardLayout: React.FC = () => {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 p-6 mt-16 overflow-auto bg-gray-50">
+        <div className={`flex-1 p-6 mt-16 overflow-auto ${isDark ? 'bg-gray-950' : 'bg-gray-50'}`}>
           <DashboardProvider>
             <Outlet />
           </DashboardProvider>

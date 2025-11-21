@@ -4,11 +4,26 @@ export type TeamMember = {
   avatar: string
 }
 
+export type Subtask = {
+  id: string
+  title: string
+  completed: boolean
+}
+
 export type Task = {
   id: string
   title: string
+  description?: string
   done: boolean
   assigneeId?: string
+  assigneeName?: string
+  importance: 'low' | 'medium' | 'high'
+  isGeneral: boolean
+  createdAt?: string
+  dueDate?: string
+  tags?: string[]
+  status?: 'todo' | 'in-progress' | 'review' | 'done'
+  subtasks?: Subtask[]
 }
 
 export type ProjectFile = {
@@ -51,5 +66,10 @@ export type UpdateProjectInput = Partial<CreateProjectInput>
 
 export type AddTaskInput = {
   title: string
-  assigneeId?: string
+  description?: string
+  importance?: 'low' | 'medium' | 'high'
+  isGeneral?: boolean
+  assignedTo?: string
+  dueDate?: string
+  tags?: string[]
 }

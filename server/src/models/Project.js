@@ -11,8 +11,21 @@ const ProjectSchema = new mongoose.Schema({
   priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
   tasks: [{
     title: { type: String, required: true },
+    description: { type: String, default: '' },
     completed: { type: Boolean, default: false },
-    assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+    assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    importance: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
+    isGeneral: { type: Boolean, default: false },
+    dueDate: { type: Date },
+    tags: [{ type: String }],
+    status: { type: String, enum: ['todo', 'in-progress', 'review', 'done'], default: 'todo' },
+    subtasks: [{
+      _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
+      title: { type: String, required: true },
+      completed: { type: Boolean, default: false }
+    }],
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
   }],
   messages: [{
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

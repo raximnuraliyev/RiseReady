@@ -44,11 +44,11 @@ const CATEGORIES = {
 }
 
 const budgetTips = [
-  "💡 Track every expense, no matter how small. Small purchases add up!",
-  "🎯 Use the 50/30/20 rule: 50% needs, 30% wants, 20% savings",
-  "📚 Buy used textbooks or rent them to save hundreds per semester",
-  "🍳 Meal prep on weekends to save money and time during busy weeks",
-  "🚌 Consider a student transit pass for unlimited monthly travel",
+  "Track every expense, no matter how small. Small purchases add up!",
+  "Use the 50/30/20 rule: 50% needs, 30% wants, 20% savings",
+  "Buy used textbooks or rent them to save hundreds per semester",
+  "Meal prep on weekends to save money and time during busy weeks",
+  "Consider a student transit pass for unlimited monthly travel",
 ]
 
 export default function BudgetPage() {
@@ -106,34 +106,39 @@ export default function BudgetPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-gray-600">Loading budget...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] to-[#F0F8FF] pb-20">
+    <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#10B981] to-[#059669] rounded-2xl flex items-center justify-center shadow-lg">
-                <PiggyBank className="w-6 h-6 text-white" />
-              </div>
+              <motion.div
+                className="w-14 h-14 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-2xl flex items-center justify-center shadow-lg"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+              >
+                <PiggyBank className="w-7 h-7 text-white" strokeWidth={2} />
+              </motion.div>
               <div>
-                <h1 className="text-3xl font-bold text-[#1F4E79]">Budget Manager</h1>
-                <p className="text-sm text-gray-600 mt-0.5">Take control of your finances 💰</p>
+                <h1 className="text-2xl font-bold text-gray-900">Budget Manager</h1>
+                <p className="text-sm text-gray-500 mt-1">Take control of your finances</p>
               </div>
             </div>
-            <button
+            <motion.button
               onClick={() => setIsAddModalOpen(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#10B981] to-[#059669] text-white rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all"
+              className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-lg font-semibold shadow-lg"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
             >
               <Plus className="w-5 h-5" />
               <span className="hidden sm:inline">Add Transaction</span>
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>
@@ -145,26 +150,25 @@ export default function BudgetPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-br from-[#10B981] to-[#059669] rounded-3xl shadow-lg p-6 text-white relative overflow-hidden"
+            className="group relative h-full overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-2xl"
           >
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-2">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-emerald-800" />
+            <div className="absolute -top-32 -right-32 w-64 h-64 bg-emerald-400 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
+            <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-teal-400 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
+
+            <div className="relative z-10 p-6 text-white">
+              <div className="flex items-center justify-between mb-4">
                 <span className="text-white/80 text-sm font-medium">Total Income</span>
-                <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-white/20 backdrop-blur-xl border border-white/30 rounded-xl flex items-center justify-center">
                   <TrendingUp className="w-5 h-5" />
                 </div>
               </div>
-              <div className="text-3xl font-bold mb-1">${summary.income.toFixed(2)}</div>
-              <div className="flex items-center gap-1 text-white/80 text-sm">
+              <div className="text-3xl font-bold mb-2">${summary.income.toFixed(2)}</div>
+              <div className="flex items-center gap-1 text-white/70 text-sm">
                 <ArrowUpRight className="w-4 h-4" />
                 <span>This month</span>
               </div>
             </div>
-            <motion.div
-              className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 3, repeat: Infinity }}
-            />
           </motion.div>
 
           {/* Expenses Card */}
@@ -172,26 +176,25 @@ export default function BudgetPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-3xl shadow-lg p-6 text-white relative overflow-hidden"
+            className="group relative h-full overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-2xl"
           >
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-2">
+            <div className="absolute inset-0 bg-gradient-to-br from-red-600 to-red-800" />
+            <div className="absolute -top-32 -right-32 w-64 h-64 bg-red-400 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
+            <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-orange-400 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
+
+            <div className="relative z-10 p-6 text-white">
+              <div className="flex items-center justify-between mb-4">
                 <span className="text-white/80 text-sm font-medium">Total Expenses</span>
-                <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-white/20 backdrop-blur-xl border border-white/30 rounded-xl flex items-center justify-center">
                   <TrendingDown className="w-5 h-5" />
                 </div>
               </div>
-              <div className="text-3xl font-bold mb-1">${summary.expenses.toFixed(2)}</div>
-              <div className="flex items-center gap-1 text-white/80 text-sm">
+              <div className="text-3xl font-bold mb-2">${summary.expenses.toFixed(2)}</div>
+              <div className="flex items-center gap-1 text-white/70 text-sm">
                 <ArrowDownRight className="w-4 h-4" />
                 <span>This month</span>
               </div>
             </div>
-            <motion.div
-              className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
-            />
           </motion.div>
 
           {/* Balance Card */}
@@ -199,29 +202,35 @@ export default function BudgetPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className={`bg-gradient-to-br ${
+            className={`group relative h-full overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-2xl ${
               summary.balance >= 0 
-                ? 'from-[#3B82F6] to-[#2563EB]' 
-                : 'from-[#F59E0B] to-[#D97706]'
-            } rounded-3xl shadow-lg p-6 text-white relative overflow-hidden`}
+                ? 'bg-gradient-to-br from-blue-600 to-blue-800' 
+                : 'bg-gradient-to-br from-amber-600 to-amber-800'
+            }`}
           >
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-2">
+            <div className={`absolute -top-32 -right-32 w-64 h-64 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-500 ${
+              summary.balance >= 0 
+                ? 'bg-blue-400' 
+                : 'bg-amber-400'
+            }`} />
+            <div className={`absolute -bottom-32 -left-32 w-64 h-64 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-500 ${
+              summary.balance >= 0 
+                ? 'bg-cyan-400' 
+                : 'bg-orange-400'
+            }`} />
+
+            <div className="relative z-10 p-6 text-white">
+              <div className="flex items-center justify-between mb-4">
                 <span className="text-white/80 text-sm font-medium">Balance</span>
-                <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-white/20 backdrop-blur-xl border border-white/30 rounded-xl flex items-center justify-center">
                   <Wallet className="w-5 h-5" />
                 </div>
               </div>
-              <div className="text-3xl font-bold mb-1">${summary.balance.toFixed(2)}</div>
-              <div className="text-white/80 text-sm">
+              <div className="text-3xl font-bold mb-2">${summary.balance.toFixed(2)}</div>
+              <div className="text-white/70 text-sm">
                 {summary.balance >= 0 ? '✓ Good balance' : '⚠ Overspending'}
               </div>
             </div>
-            <motion.div
-              className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 3, repeat: Infinity, delay: 1 }}
-            />
           </motion.div>
         </div>
 
@@ -230,38 +239,44 @@ export default function BudgetPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-gradient-to-r from-[#FEF3C7] to-[#FDE68A] rounded-2xl p-6 mb-8 border-2 border-[#F59E0B]/20"
+          className="group relative overflow-hidden rounded-2xl p-6 mb-8 bg-gradient-to-r from-amber-600 to-amber-800 text-white"
         >
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center flex-shrink-0">
-              <Lightbulb className="w-6 h-6 text-[#F59E0B]" />
+          <div className="absolute -top-32 -right-32 w-64 h-64 bg-amber-400 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
+          <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-orange-400 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
+          <div className="relative z-10 flex items-start gap-4">
+            <div className="w-12 h-12 bg-white/20 backdrop-blur-xl border border-white/30 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Lightbulb className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="font-bold text-[#92400E] mb-1">Budget Tip</h3>
-              <p className="text-[#78350F]">{currentTip}</p>
+              <h3 className="font-bold text-white mb-1">Budget Tip</h3>
+              <p className="text-white/80">{currentTip}</p>
             </div>
           </div>
         </motion.div>
 
         {/* Transactions List */}
-        <div className="bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-[#1F4E79]">Recent Transactions</h2>
+            <h2 className="text-xl font-bold text-gray-900">Recent Transactions</h2>
             <span className="text-sm text-gray-600">{items.length} transactions</span>
           </div>
 
           {items.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-6xl mb-4">💸</div>
-              <h3 className="text-xl font-bold text-[#1F4E79] mb-2">No transactions yet</h3>
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-2xl flex items-center justify-center">
+                <DollarSign className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">No transactions yet</h3>
               <p className="text-gray-600 mb-6">Start tracking your income and expenses</p>
-              <button
+              <motion.button
                 onClick={() => setIsAddModalOpen(true)}
-                className="px-6 py-3 bg-[#10B981] text-white rounded-xl font-semibold hover:bg-[#059669] transition-colors inline-flex items-center gap-2"
+                className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-lg font-semibold inline-flex items-center gap-2"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
               >
                 <Plus className="w-5 h-5" />
                 Add First Transaction
-              </button>
+              </motion.button>
             </div>
           ) : (
             <div className="space-y-3">
@@ -275,7 +290,7 @@ export default function BudgetPage() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="flex items-center gap-4 p-4 rounded-xl border-2 border-gray-100 hover:border-gray-200 hover:shadow-md transition-all group"
+                    className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all group"
                   >
                     <div
                       className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -288,7 +303,7 @@ export default function BudgetPage() {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-[#1F4E79]">{item.category}</h3>
+                        <h3 className="font-semibold text-gray-900">{item.category}</h3>
                         {item.recurring && (
                           <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">
                             Recurring
@@ -304,15 +319,16 @@ export default function BudgetPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <div className={`text-xl font-bold ${isIncome ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
+                      <div className={`text-xl font-bold ${isIncome ? 'text-emerald-600' : 'text-red-600'}`}>
                         {isIncome ? '+' : '-'}${item.amount.toFixed(2)}
                       </div>
-                      <button
+                      <motion.button
                         onClick={() => handleDelete(item._id)}
                         className="opacity-0 group-hover:opacity-100 p-2 hover:bg-red-50 rounded-lg transition-all"
+                        whileHover={{ scale: 1.05 }}
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />
-                      </button>
+                      </motion.button>
                     </div>
                   </motion.div>
                 )
@@ -330,43 +346,48 @@ export default function BudgetPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl"
+              className="bg-white rounded-2xl overflow-hidden max-w-md w-full shadow-2xl"
             >
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-[#1F4E79]">Add Transaction</h3>
-                <button
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="p-1 hover:bg-gray-100 rounded"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+              <div className="bg-gradient-to-br from-emerald-600 to-emerald-800 p-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-bold text-white">Add Transaction</h3>
+                  <motion.button
+                    onClick={() => setIsAddModalOpen(false)}
+                    className="p-2 hover:bg-white/20 rounded-lg transition-all"
+                    whileHover={{ rotate: 90 }}
+                  >
+                    <X className="w-5 h-5 text-white" strokeWidth={2} />
+                  </motion.button>
+                </div>
               </div>
 
-              <form onSubmit={handleAddTransaction} className="space-y-4">
+              <form onSubmit={handleAddTransaction} className="p-6 space-y-4">
                 {/* Type Selection */}
                 <div className="flex gap-2">
-                  <button
+                  <motion.button
                     type="button"
                     onClick={() => setFormData({ ...formData, type: 'income', category: '' })}
-                    className={`flex-1 py-3 rounded-xl font-semibold transition-all ${
+                    className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
                       formData.type === 'income'
-                        ? 'bg-[#10B981] text-white'
+                        ? 'bg-gradient-to-r from-emerald-600 to-emerald-800 text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
+                    whileHover={{ scale: 1.02 }}
                   >
                     Income
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
                     type="button"
                     onClick={() => setFormData({ ...formData, type: 'expense', category: '' })}
-                    className={`flex-1 py-3 rounded-xl font-semibold transition-all ${
+                    className={`flex-1 py-3 rounded-lg font-semibold transition-all ${
                       formData.type === 'expense'
-                        ? 'bg-[#EF4444] text-white'
+                        ? 'bg-gradient-to-r from-red-600 to-red-800 text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
+                    whileHover={{ scale: 1.02 }}
                   >
                     Expense
-                  </button>
+                  </motion.button>
                 </div>
 
                 {/* Amount */}
@@ -380,7 +401,7 @@ export default function BudgetPage() {
                     required
                     value={formData.amount}
                     onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                    className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-[#37A6FF] focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
                     placeholder="0.00"
                   />
                 </div>
@@ -394,7 +415,7 @@ export default function BudgetPage() {
                     required
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-[#37A6FF] focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
                   >
                     <option value="">Select category</option>
                     {CATEGORIES[formData.type].map((cat) => (
@@ -414,7 +435,7 @@ export default function BudgetPage() {
                     type="date"
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-[#37A6FF] focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
                   />
                 </div>
 
@@ -427,7 +448,7 @@ export default function BudgetPage() {
                     type="text"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-[#37A6FF] focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600"
                     placeholder="Add a note..."
                   />
                 </div>
@@ -443,20 +464,22 @@ export default function BudgetPage() {
                   <span className="text-sm text-gray-700">Recurring (monthly)</span>
                 </label>
 
-                <div className="flex gap-3 pt-2">
-                  <button
+                <div className="flex gap-3 pt-4">
+                  <motion.button
                     type="button"
                     onClick={() => setIsAddModalOpen(false)}
-                    className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg font-semibold hover:bg-gray-50"
+                    className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+                    whileHover={{ scale: 1.02 }}
                   >
                     Cancel
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
                     type="submit"
-                    className="flex-1 px-4 py-2 bg-[#10B981] text-white rounded-lg font-semibold hover:bg-[#059669] transition-colors"
+                    className="flex-1 px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-800 text-white rounded-lg font-semibold"
+                    whileHover={{ scale: 1.02 }}
                   >
                     Add Transaction
-                  </button>
+                  </motion.button>
                 </div>
               </form>
             </motion.div>

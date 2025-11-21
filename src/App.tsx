@@ -7,6 +7,7 @@ import useAuth from './hooks/useAuth'
 import AnimatedBackground from './components/AnimatedBackground'
 import AIAssistant from './components/AIAssistant'
 import { useAIAssistantContext } from './hooks/useAIAssistant'
+import { ThemeProvider } from './contexts/ThemeContext'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -37,6 +38,7 @@ const InternshipsPage = lazy(() => import('./pages/dashboard/InternshipsPage'))
 const NotificationsPage = lazy(() => import('./pages/dashboard/NotificationsPage'))
 const ProfilePage = lazy(() => import('./pages/dashboard/ProfilePage'))
 const SettingsPage = lazy(() => import('./pages/dashboard/SettingsPage'))
+const AchievementsPage = lazy(() => import('./pages/AchievementsNew'))
 
 // Loading component
 const LoadingSpinner = () => (
@@ -66,10 +68,11 @@ function App() {
   )
 
   return (
-    <ErrorBoundary>
-      <ToastContainer position="top-right" />
-      <Suspense fallback={<LoadingSpinner />}>
-        <Routes>
+    <ThemeProvider>
+      <ErrorBoundary>
+        <ToastContainer position="top-right" />
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
           {/* Public routes */}
           <Route path="/" element={<PublicLayout><HomePage /></PublicLayout>} />
           <Route path="/about" element={<PublicLayout><AboutPage /></PublicLayout>} />
@@ -110,15 +113,17 @@ function App() {
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="achievements" element={<AchievementsPage />} />
           </Route>
           
           {/* Fallback route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        {/* AI Assistant floating orb, mounted globally so it appears on every page */}
+        <AIAssistant pageContext={pageContext} />
       </Suspense>
-      {/* AI Assistant floating orb, mounted globally so it appears on every page */}
-      <AIAssistant pageContext={pageContext} />
     </ErrorBoundary>
+    </ThemeProvider>
   )
 }
 

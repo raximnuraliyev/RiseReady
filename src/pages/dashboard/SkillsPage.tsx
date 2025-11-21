@@ -7,16 +7,20 @@ import {
   Edit,
   Trash2,
   X,
-  Sparkles
+  Sparkles,
+  BookOpen,
+  Code2,
+  Users,
+  Star
 } from 'lucide-react'
 import { useSkills } from '../../hooks/useSkills'
 import { useUserLevel } from '../../hooks/useUserLevel'
 
-const categoryIcons: Record<string, string> = {
-  'Academic': '📚',
-  'Technical': '💻',
-  'Soft Skills': '🤝',
-  'Other': '⭐'
+const categoryIcons: Record<string, React.ReactNode> = {
+  'Academic': <BookOpen className="w-6 h-6" />,
+  'Technical': <Code2 className="w-6 h-6" />,
+  'Soft Skills': <Users className="w-6 h-6" />,
+  'Other': <Star className="w-6 h-6" />
 }
 
 const categoryColors: Record<string, string> = {
@@ -72,39 +76,44 @@ export default function SkillsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex items-center justify-center">
         <div className="text-gray-600">Loading skills...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FAFAFA] to-[#F0F4FF] pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 pb-20">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#37A6FF] to-[#1F4E79] rounded-2xl flex items-center justify-center shadow-lg">
-                <TrendingUp className="w-6 h-6 text-white" />
-              </div>
+              <motion.div
+                className="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl flex items-center justify-center shadow-lg"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+              >
+                <TrendingUp className="w-7 h-7 text-white" strokeWidth={2} />
+              </motion.div>
               <div>
-                <h1 className="text-3xl font-bold text-[#1F4E79]">Skills Tracker</h1>
+                <h1 className="text-3xl font-bold text-gray-900">Skills Tracker</h1>
                 <p className="text-sm text-gray-600 mt-0.5">Build your academic superpowers 🚀</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#FFD700]/20 to-[#FFA500]/20 rounded-full border-2 border-[#FFD700]/30">
-                <Award className="w-5 h-5 text-[#FFA500]" />
-                <span className="font-semibold text-[#1F4E79]">Level {level}</span>
+              <div className="hidden md:flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-amber-100 to-orange-100 rounded-full border-2 border-amber-300/50 shadow-lg">
+                <Award className="w-5 h-5 text-amber-600" strokeWidth={2} />
+                <span className="font-semibold text-gray-900">Level {level}</span>
               </div>
-              <button
+              <motion.button
                 onClick={() => setShowAddModal(true)}
-                className="px-4 py-2 bg-[#37A6FF] text-white rounded-xl font-semibold hover:bg-[#1F4E79] transition-colors flex items-center gap-2"
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
               >
                 <Plus className="w-5 h-5" />
                 <span className="hidden sm:inline">Add Skill</span>
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>
@@ -115,42 +124,63 @@ export default function SkillsPage() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-3xl shadow-lg p-8 mb-8 border border-gray-100"
+          transition={{ duration: 0.6 }}
+          className="group relative h-full overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-2xl mb-8"
         >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-[#1F4E79]">Overall Skills Progress</h2>
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-[#FFD700]" />
-              <span className="text-2xl font-bold text-[#37A6FF]">{overallProgress}%</span>
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 to-indigo-800" />
+          <div className="absolute -top-32 -right-32 w-64 h-64 bg-indigo-400 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
+          <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-blue-400 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
+          
+          <div className="relative z-10 p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Overall Skills Progress</h2>
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-6 h-6 text-yellow-300" strokeWidth={2} />
+                <span className="text-4xl font-bold text-white">{overallProgress}%</span>
+              </div>
             </div>
+            <div className="relative w-full h-4 bg-white/20 rounded-full overflow-hidden backdrop-blur-xl border border-white/30">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${overallProgress}%` }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className="h-full bg-gradient-to-r from-yellow-300 via-amber-300 to-yellow-200 rounded-full shadow-lg"
+              />
+            </div>
+            <p className="text-white/80 text-sm mt-3">
+              {skills.length === 0 ? 'Add your first skill to get started!' : `Tracking ${skills.length} skills`}
+            </p>
           </div>
-          <div className="relative w-full h-4 bg-gray-200 rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${overallProgress}%` }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
-              className="h-full bg-gradient-to-r from-[#37A6FF] via-[#5CB3FF] to-[#1F4E79] rounded-full"
-            />
-          </div>
-          <p className="text-sm text-gray-600 mt-3">
-            {skills.length === 0 ? 'Add your first skill to get started!' : `Tracking ${skills.length} skills`}
-          </p>
         </motion.div>
 
         {/* Skills Grid */}
         {skills.length === 0 ? (
-          <div className="bg-white rounded-3xl shadow-lg p-12 text-center border border-gray-100">
-            <div className="text-6xl mb-4">🎯</div>
-            <h3 className="text-2xl font-bold text-[#1F4E79] mb-2">No skills yet!</h3>
-            <p className="text-gray-600 mb-6">Start tracking your skills to level up your abilities</p>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="px-6 py-3 bg-[#37A6FF] text-white rounded-xl font-semibold hover:bg-[#1F4E79] transition-colors inline-flex items-center gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              Add Your First Skill
-            </button>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="group relative h-full overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-2xl"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-600 to-cyan-800" />
+            <div className="absolute -top-32 -right-32 w-64 h-64 bg-cyan-400 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
+            <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-blue-400 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
+            
+            <div className="relative z-10 p-12 text-center min-h-[400px] flex flex-col items-center justify-center">
+              <div className="w-20 h-20 bg-white/20 backdrop-blur-xl border border-white/30 rounded-2xl flex items-center justify-center mb-6">
+                <Award className="w-10 h-10 text-white" strokeWidth={1.5} />
+              </div>
+              <h3 className="text-3xl font-bold text-white mb-3">No skills yet!</h3>
+              <p className="text-white/80 mb-8 text-lg">Start tracking your skills to level up your abilities</p>
+              <motion.button
+                onClick={() => setShowAddModal(true)}
+                className="px-8 py-4 bg-white text-cyan-700 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all inline-flex items-center gap-2"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Plus className="w-5 h-5" />
+                Add Your First Skill
+              </motion.button>
+            </div>
+          </motion.div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {skills.map((skill, index) => {
@@ -163,74 +193,85 @@ export default function SkillsPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden"
+                  className="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:shadow-2xl"
                 >
-                  {/* Header */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100" />
                   <div 
-                    className="h-24 p-4 relative"
-                    style={{ background: `linear-gradient(135deg, ${color}15 0%, ${color}30 100%)` }}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div 
-                        className="w-12 h-12 rounded-xl flex items-center justify-center shadow text-2xl"
-                        style={{ backgroundColor: color }}
+                    className="absolute -top-24 -right-24 w-48 h-48 rounded-full opacity-10 group-hover:opacity-20 transition-opacity duration-500"
+                    style={{ backgroundColor: color }}
+                  />
+                  
+                  <div className="relative z-10 p-6 h-full flex flex-col">
+                    {/* Header */}
+                    <div className="flex justify-between items-start mb-4">
+                      <motion.div
+                        className="w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg"
+                        style={{ background: `linear-gradient(135deg, ${color}, ${color}dd)` }}
+                        whileHover={{ scale: 1.1 }}
                       >
                         {icon}
-                      </div>
+                      </motion.div>
                       <div className="flex gap-1">
-                        <button
+                        <motion.button
                           onClick={() => setEditingSkill(skill)}
-                          className="p-1.5 bg-white/80 rounded-lg hover:bg-white transition-colors"
+                          className="p-2 bg-gray-200/80 rounded-lg hover:bg-gray-300 transition-colors"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
                         >
-                          <Edit className="w-4 h-4 text-gray-600" />
-                        </button>
-                        <button
+                          <Edit className="w-4 h-4 text-gray-700" />
+                        </motion.button>
+                        <motion.button
                           onClick={() => handleDelete(skill._id)}
-                          className="p-1.5 bg-white/80 rounded-lg hover:bg-white transition-colors"
+                          className="p-2 bg-gray-200/80 rounded-lg hover:bg-red-100 transition-colors"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
                         >
                           <Trash2 className="w-4 h-4 text-red-500" />
-                        </button>
+                        </motion.button>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Content */}
-                  <div className="p-4">
-                    <h3 className="font-bold text-lg text-[#1F4E79] mb-1">{skill.name}</h3>
-                    <p className="text-xs text-gray-500 mb-3">{skill.category}</p>
+                    {/* Content */}
+                    <h3 className="font-bold text-lg text-gray-900 mb-1">{skill.name}</h3>
+                    <p className="text-xs text-gray-600 mb-4">{skill.category}</p>
 
                     {/* Level */}
-                    <div className="mb-3">
-                      <div className="flex justify-between text-sm mb-1">
+                    <div className="mb-4 flex-grow">
+                      <div className="flex justify-between text-sm mb-2">
                         <span className="text-gray-600">Level</span>
                         <span className="font-semibold" style={{ color }}>
                           {skill.level}%
                         </span>
                       </div>
-                      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{ width: `${skill.level}%`, backgroundColor: color }}
+                      <div className="w-full h-2 bg-gray-300 rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${skill.level}%` }}
+                          transition={{ duration: 0.8 }}
+                          className="h-full rounded-full"
+                          style={{ background: `linear-gradient(90deg, ${color}, ${color}dd)` }}
                         />
                       </div>
                     </div>
 
                     {/* Practice count */}
-                    <div className="text-xs text-gray-600 mb-3">
-                      Practiced: {skill.practiced} times
+                    <div className="text-xs text-gray-600 mb-4">
+                      Practiced: {skill.practiced || 0} times
                     </div>
 
                     {/* Practice button */}
-                    <button
+                    <motion.button
                       onClick={() => handlePractice(skill._id)}
-                      className="w-full py-2 rounded-lg text-white font-semibold text-sm hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: color }}
+                      className="w-full py-3 rounded-lg text-white font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg"
+                      style={{ background: `linear-gradient(135deg, ${color}, ${color}dd)` }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.98 }}
                     >
                       Practice
-                    </button>
+                    </motion.button>
 
                     {skill.notes && (
-                      <p className="text-xs text-gray-500 mt-2 line-clamp-2">{skill.notes}</p>
+                      <p className="text-xs text-gray-600 mt-3 line-clamp-2">{skill.notes}</p>
                     )}
                   </div>
                 </motion.div>
@@ -248,26 +289,27 @@ export default function SkillsPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl"
+              className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl border border-gray-100"
             >
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-[#1F4E79]">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-900">
                   {editingSkill ? 'Edit Skill' : 'Add New Skill'}
                 </h3>
-                <button
+                <motion.button
                   onClick={() => {
                     setShowAddModal(false)
                     setEditingSkill(null)
                   }}
-                  className="p-1 hover:bg-gray-100 rounded"
+                  whileHover={{ rotate: 90 }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <X className="w-5 h-5" />
-                </button>
+                  <X className="w-6 h-6" />
+                </motion.button>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Skill Name *
                   </label>
                   <input
@@ -277,13 +319,13 @@ export default function SkillsPage() {
                       ? setEditingSkill({ ...editingSkill, name: e.target.value })
                       : setNewSkill({ ...newSkill, name: e.target.value })
                     }
-                    className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-[#37A6FF] focus:outline-none"
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-600 focus:outline-none"
                     placeholder="e.g., Time Management"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Category
                   </label>
                   <select
@@ -292,18 +334,18 @@ export default function SkillsPage() {
                       ? setEditingSkill({ ...editingSkill, category: e.target.value })
                       : setNewSkill({ ...newSkill, category: e.target.value })
                     }
-                    className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-[#37A6FF] focus:outline-none"
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-600 focus:outline-none"
                   >
-                    <option value="Academic">📚 Academic</option>
-                    <option value="Technical">💻 Technical</option>
-                    <option value="Soft Skills">🤝 Soft Skills</option>
-                    <option value="Other">⭐ Other</option>
+                    <option value="Academic">Academic</option>
+                    <option value="Technical">Technical</option>
+                    <option value="Soft Skills">Soft Skills</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
 
                 {editingSkill && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Level (0-100)
                     </label>
                     <input
@@ -312,13 +354,13 @@ export default function SkillsPage() {
                       max="100"
                       value={editingSkill.level}
                       onChange={(e) => setEditingSkill({ ...editingSkill, level: parseInt(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-[#37A6FF] focus:outline-none"
+                      className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-600 focus:outline-none"
                     />
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Notes
                   </label>
                   <textarea
@@ -327,7 +369,7 @@ export default function SkillsPage() {
                       ? setEditingSkill({ ...editingSkill, notes: e.target.value })
                       : setNewSkill({ ...newSkill, notes: e.target.value })
                     }
-                    className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-[#37A6FF] focus:outline-none"
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-600 focus:outline-none"
                     rows={3}
                     placeholder="Add any notes about this skill..."
                   />
@@ -339,16 +381,18 @@ export default function SkillsPage() {
                       setShowAddModal(false)
                       setEditingSkill(null)
                     }}
-                    className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg font-semibold hover:bg-gray-50"
+                    className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
                   >
                     Cancel
                   </button>
-                  <button
+                  <motion.button
                     onClick={editingSkill ? handleUpdate : handleAddSkill}
-                    className="flex-1 px-4 py-2 bg-[#37A6FF] text-white rounded-lg font-semibold hover:bg-[#1F4E79] transition-colors"
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
                     {editingSkill ? 'Save Changes' : 'Add Skill'}
-                  </button>
+                  </motion.button>
                 </div>
               </div>
             </motion.div>
@@ -370,18 +414,18 @@ export default function SkillsPage() {
               rotate: [0, 10, -10, 0]
             }}
             transition={{ duration: 0.5 }}
-            className="bg-white rounded-3xl shadow-2xl p-8 border-4 border-[#FFD700]"
+            className="bg-white rounded-2xl shadow-2xl p-8 border-4 border-amber-500"
           >
             <div className="text-center">
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, ease: "easeInOut" }}
-                className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-[#FFD700] to-[#FFA500] rounded-full flex items-center justify-center"
+                className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg"
               >
-                <Award className="w-12 h-12 text-white" />
+                <Award className="w-12 h-12 text-white" strokeWidth={1.5} />
               </motion.div>
-              <h3 className="text-2xl font-bold text-[#1F4E79] mb-2">Great Practice! 🎉</h3>
-              <p className="text-xl font-semibold text-[#37A6FF]">Level Up!</p>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Great Practice! 🎉</h3>
+              <p className="text-xl font-semibold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">Level Up!</p>
             </div>
           </motion.div>
         </motion.div>
